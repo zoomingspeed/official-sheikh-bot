@@ -1,7 +1,7 @@
 # SHEIKH BOT
 The official repository for Sheikh Bot, an Islamic moderation bot, that also includes Quran related commands.
 
-If you would like to contribute to this project, create a pull request, or if you would like to report a problem with Sheikh Bot, then open an issue.
+If there is a problem with the Discord bot, please open an issue and describe what happens.
 
 # LINKS
 Sheikh Bot's invite link from https://top.gg/:
