@@ -4,8 +4,8 @@ The official repository for Sheikh Bot, an Islamic moderation bot, that also inc
 If there is a problem with the Discord bot, please open an issue and describe what happens.
 
 # LINKS
-Sheikh Bot's invite link from https://top.gg/:
-`Coming Soon`
+Sheikh Bot's invite link:
+https://top.gg/bot/1158481964559503360
 
 # CREDITS
 I would like to give credit to [@dsdanielpark](https://github.com/dsdanielpark), [@niztg](https://github.com/niztg/), [@bbc2](https://github.com/bbc2), [@Rapptz](https://github.com/rapptz), and the other owners of the Python packages included with this Discord bot. I consider them contributors for allowing me to use their packages on https://pypi.org, so credit goes to them for the packages.
