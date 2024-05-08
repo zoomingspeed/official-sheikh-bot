@@ -36,8 +36,9 @@ async def on_ready():
 async def on_guild_join(guild):
     role = discord.utils.get(guild.roles, name="Muted")
     if role == None:
-        await guild.create_role(name="Muted",
-                                permissions=discord.Permissions(send_messages=False))
+        role = await guild.create_role(name="Muted")
+        for channel in guild.channels:
+            await channel.set_permissions(role, speak=False, send_messages=False)
         try:
             embed=discord.Embed(title="Introduction",
                                 description="**السلام عليكم!**",
@@ -63,14 +64,10 @@ async def on_guild_join(guild):
 @default_permissions(manage_roles = True)
 @commands.guild_only()
 async def mute(ctx, member:discord.Member, *, reason=None):
+    await ctx.defer()
+    await asyncio.sleep(1)
     role = discord.utils.get(ctx.guild.roles, name="Muted")
     guild = ctx.guild
-    if member.guild_permissions.manage_roles:
-        embed=discord.Embed(title="",
-                            description="You cannot mute this member because they have the `Manage Roles` permission!",
-                            color=discord.Color.red())
-        await ctx.respond(embed=embed, ephemeral=True)
-        print(f"{ctx.author} tried to mute {member} in {guild}, but {member} has manage role permissions")
     if role in member.roles:
         embed=discord.Embed(title="",
                             description="This user is already muted!",
@@ -91,6 +88,14 @@ async def mute(ctx, member:discord.Member, *, reason=None):
                                 color=discord.Color.green())
             embed.add_field(name="**Reason:**", value=reason, inline=False)
             await ctx.respond(embed=embed)
+
+@mute.error
+async def mute_error(ctx, error):
+    if isinstance(error, commands.MissingPermissions):
+        embed=discord.Embed(title="",
+                            description="I do not have permission to mute this member!",
+                            color=discord.Color.red())
+        await ctx.respond(embed=embed, ephemeral=True)
 
 # quran command
 @bot.slash_command(name="quran", description="Read Quran through Sheikh Bot")
