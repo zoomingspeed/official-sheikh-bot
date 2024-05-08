@@ -4,7 +4,7 @@ The official repository for Sheikh Bot, an Islamic moderation bot, that also inc
 If you would like to contribute to this project, create a pull request, or if you would like to report a problem with Sheikh Bot, then open an issue.
 
 # LINKS
-Sheikh Bot's invite link from https://top.gg/:
+Sheikh Bot's invite link from https://top.gg/bot/1158481964559503360
 `Coming Soon`
 
 # CREDITS
