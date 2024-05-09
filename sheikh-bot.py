@@ -64,8 +64,8 @@ async def on_guild_join(guild):
 @default_permissions(manage_roles = True)
 @commands.guild_only()
 async def mute(ctx, member:discord.Member, *, reason=None):
-    await ctx.defer()
     await asyncio.sleep(1)
+    coolbotvar = ctx.guild.me
     role = discord.utils.get(ctx.guild.roles, name="Muted")
     guild = ctx.guild
     if role in member.roles:
@@ -75,19 +75,35 @@ async def mute(ctx, member:discord.Member, *, reason=None):
         await ctx.respond(embed=embed, ephemeral=True)
     else:
         if reason == None:
-            await member.add_roles(role)
-            embed=discord.Embed(title="Successfully muted!",
-                                description=f"Successfully muted {member.mention}, no reason provided.",
-                                color=discord.Color.green())
-            await ctx.respond(embed=embed)
-            print(f"{ctx.author} has successfully muted {member} in {guild}, no reason provided.")
+            if member == coolbotvar:
+                embed=discord.Embed(title="",
+                                    description="I cannot mute myself!",
+                                    color=discord.Color.red())
+                await ctx.respond(embed=embed, ephemeral=True)
+            else:
+                await member.add_roles(role)
+                embed=discord.Embed(title="Successfully muted!",
+                                    description=f"Successfully muted {member.mention}, no reason provided.",
+                                    color=discord.Color.green())
+                await ctx.respond(embed=embed)
+                for channel in guild.channels:
+                    await channel.set_permissions(role, speak=False, send_messages=False)
+                print(f"{ctx.author} has successfully muted {member} in {guild}, no reason provided.")
         else:
-            await member.add_roles(role)
-            embed=discord.Embed(title="Successfully muted!",
-                                description=f"Successfully muted {member.mention}!",
-                                color=discord.Color.green())
-            embed.add_field(name="**Reason:**", value=reason, inline=False)
-            await ctx.respond(embed=embed)
+            if member == coolbotvar:
+                embed=discord.Embed(title="",
+                                    description="I cannot mute myself!",
+                                    color=discord.Color.red())
+                await ctx.respond(embed=embed, ephemeral=True)
+            else:
+                await member.add_roles(role)
+                embed=discord.Embed(title="Successfully muted!",
+                                    description=f"Successfully muted {member.mention}!",
+                                    color=discord.Color.green())
+                embed.add_field(name="**Reason:**", value=reason, inline=False)
+                await ctx.respond(embed=embed)
+                for channel in guild.channels:
+                    await channel.set_permissions(role, speak=False, send_messages=False)
 
 @mute.error
 async def mute_error(ctx, error):
@@ -535,22 +551,35 @@ async def unmute(ctx, member : discord.Member):
 @commands.guild_only()
 async def ban(ctx, member : discord.Member, *, reason=None):
     guild = ctx.guild
+    coolbotvar = guild.me
     if ctx.author.guild_permissions.ban_members:
         if reason == None:
-            try:
-                embed=discord.Embed(title="Ban successful!",
-                                    description=f"Successfully banned {member.mention}, no reason provided.",
-                                    color=discord.Color.green())
-                await member.send(f"You have been banned from {guild}, no reason provided.")
-                await member.ban()
-                await ctx.respond(embed=embed)
-                print(f"{ctx.author} has successfully banned {member} from {guild}, no reason provided.")
-            except discord.errors.Forbidden:
-                embed=discord.Embed(title="Ban successful!",
-                                    description=f"Successfully banned {member.mention}, no reason provided.",
-                                    color=discord.Color.greed())
-                await member.ban(embed=embed)
-                print(f"{ctx.author} has successfully banned {member} from {guild}, no reason provided.")
+            if member == coolbotvar:
+                embed=discord.Embed(title="",
+                                    description="I cannot ban myself!",
+                                    color=discord.Color.red())
+                await ctx.respond(embed=embed, ephemeral=True)
+            else:
+                try:
+                    embed=discord.Embed(title="Ban successful!",
+                                        description=f"Successfully banned {member.mention}, no reason provided.",
+                                        color=discord.Color.green())
+                    await member.send(f"You have been banned from {guild}, no reason provided.")
+                    await member.ban()
+                    await ctx.respond(embed=embed)
+                    print(f"{ctx.author} has successfully banned {member} from {guild}, no reason provided.")
+                except discord.errors.Forbidden:
+                    embed=discord.Embed(title="Ban successful!",
+                                        description=f"Successfully banned {member.mention}, no reason provided.",
+                                        color=discord.Color.greed())
+                    await member.ban(embed=embed)
+                    print(f"{ctx.author} has successfully banned {member} from {guild}, no reason provided.")
+        else:
+            if member == coolbotvar:
+                embed=discord.Embed(title="",
+                                    description="I cannot ban myself!",
+                                    color=discord.Color.red())
+                await ctx.respond(embed=embed, ephemeral=True)
             else:
                 try:
                     embed=discord.Embed(title="Ban successful!",
@@ -581,25 +610,32 @@ async def ban(ctx, member : discord.Member, *, reason=None):
 @commands.guild_only()
 async def kick(ctx, member : discord.Member, reason=None):
     guild = ctx.guild
+    coolbotvar = guild.me
     if ctx.author.guild_permissions.kick_members:
-        if reason == None:
-            guild = ctx.guild
-            embed=discord.Embed(title="Kick successful!",
-                                color=discord.Color.green())
-            embed.add_field(name="", value=f"Successfully kicked {member.mention}, no reason provided.")
-            await member.send(f"You have been kicked from {guild}, no reason provided.")
-            await ctx.respond(embed=embed)
-            await member.kick()
-            print(f"{ctx.author} has successfully kicked {member} from {guild}, no reason provided.")
+        if member == coolbotvar:
+            embed=discord.Embed(title="",
+                                description="I cannot kick myself!",
+                                color=discord.Color.red())
+            await ctx.respond(embed=embed, ephemeral=True)
         else:
-            embed=discord.Embed(title="Kick successful!",
-                                color=discord.Color.green())
-            embed.add_field(name="", value=f"Successfully kicked {member.mention}!", inline=False)
-            embed.add_field(name="**Reason:**", value=reason, inline=False)
-            await ctx.respond(embed=embed)
-            await member.send(f"You have been kicked from {guild} due to the following reason: ```{reason}```")
-            await member.kick()
-            print(f"{ctx.author} has successfully kicked out {member} from {guild} due to the following reason: {reason}")
+            if reason == None:
+                guild = ctx.guild
+                embed=discord.Embed(title="Kick successful!",
+                                    color=discord.Color.green())
+                embed.add_field(name="", value=f"Successfully kicked {member.mention}, no reason provided.")
+                await member.send(f"You have been kicked from {guild}, no reason provided.")
+                await ctx.respond(embed=embed)
+                await member.kick()
+                print(f"{ctx.author} has successfully kicked {member} from {guild}, no reason provided.")
+            else:
+                embed=discord.Embed(title="Kick successful!",
+                                    color=discord.Color.green())
+                embed.add_field(name="", value=f"Successfully kicked {member.mention}!", inline=False)
+                embed.add_field(name="**Reason:**", value=reason, inline=False)
+                await ctx.respond(embed=embed)
+                await member.send(f"You have been kicked from {guild} due to the following reason: ```{reason}```")
+                await member.kick()
+                print(f"{ctx.author} has successfully kicked out {member} from {guild} due to the following reason: {reason}")
     else:
         embed=discord.Embed(title="",
                             description="You do not have permissions to kick other members!",
