@@ -53,7 +53,7 @@ async def on_guild_join(guild):
             embed=discord.Embed(title="Introduction",
                                     description="**السلام عليكم!**",
                                     color=discord.Color.blurple())
-            embed.add_field(name='**What is Sheikh Bot?**', value='Sheikh Bot is a bot that is used for moderation and Islamic purposes. To get started, please run ".help"', inline=False)
+            embed.add_field(name='**What is Sheikh Bot?**', value='Sheikh Bot is a bot that is used for moderation and Islamic purposes. To get started, please run "/help"', inline=False)
             await guild.text_channels[0].send(embed=embed)
             print(f"Bot has successfully joined {guild}")
         except Exception as e:
