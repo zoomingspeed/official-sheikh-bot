@@ -1,4 +1,4 @@
-import discord
+﻿import discord
 from discord.utils import get
 from discord.ext import commands
 from discord import default_permissions
@@ -64,7 +64,6 @@ async def on_guild_join(guild):
 @default_permissions(manage_roles = True)
 @commands.guild_only()
 async def mute(ctx, member:discord.Member, *, reason=None):
-    await asyncio.sleep(1)
     coolbotvar = ctx.guild.me
     role = discord.utils.get(ctx.guild.roles, name="Muted")
     guild = ctx.guild
