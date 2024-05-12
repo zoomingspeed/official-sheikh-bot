@@ -1,4 +1,4 @@
-﻿import discord
+import discord
 from discord.utils import get
 from discord.ext import commands
 from discord import default_permissions
@@ -29,7 +29,7 @@ async def on_ready():
     await bot.register_commands()
     for guild in bot.guilds:
         print(f"We have logged into {guild} as {bot.user}")
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="The Holy Quran"))
+    await bot.change_presence(status=discord.Status.idle, activity=discord.Activity(type=discord.ActivityType.watching, name="The Holy Quran"))
 
 # on guild join
 @bot.event
@@ -80,14 +80,20 @@ async def mute(ctx, member:discord.Member, *, reason=None):
                                     color=discord.Color.red())
                 await ctx.respond(embed=embed, ephemeral=True)
             else:
-                await member.add_roles(role)
-                embed=discord.Embed(title="Successfully muted!",
-                                    description=f"Successfully muted {member.mention}, no reason provided.",
-                                    color=discord.Color.green())
-                await ctx.respond(embed=embed)
-                for channel in guild.channels:
-                    await channel.set_permissions(role, speak=False, send_messages=False)
-                print(f"{ctx.author} has successfully muted {member} in {guild}, no reason provided.")
+                if member.guild_permissions.manage_roles:
+                    embed=discord.Embed(title="",
+                                        description="I cannot mute this member because they have `Manage Roles` permissions!",
+                                        color=discord.Color.red())
+                    await ctx.respond(embed=embed, ephemeral=True)
+                else:
+                    await member.add_roles(role)
+                    embed=discord.Embed(title="Successfully muted!",
+                                        description=f"Successfully muted {member.mention}, no reason provided.",
+                                        color=discord.Color.green())
+                    await ctx.respond(embed=embed)
+                    for channel in guild.channels:
+                        await channel.set_permissions(role, speak=False, send_messages=False)
+                    print(f"{ctx.author} has successfully muted {member} in {guild}, no reason provided.")
         else:
             if member == coolbotvar:
                 embed=discord.Embed(title="",
@@ -95,22 +101,21 @@ async def mute(ctx, member:discord.Member, *, reason=None):
                                     color=discord.Color.red())
                 await ctx.respond(embed=embed, ephemeral=True)
             else:
-                await member.add_roles(role)
-                embed=discord.Embed(title="Successfully muted!",
-                                    description=f"Successfully muted {member.mention}!",
-                                    color=discord.Color.green())
-                embed.add_field(name="**Reason:**", value=reason, inline=False)
-                await ctx.respond(embed=embed)
-                for channel in guild.channels:
-                    await channel.set_permissions(role, speak=False, send_messages=False)
-
-@mute.error
-async def mute_error(ctx, error):
-    if isinstance(error, commands.MissingPermissions):
-        embed=discord.Embed(title="",
-                            description="I do not have permission to mute this member!",
-                            color=discord.Color.red())
-        await ctx.respond(embed=embed, ephemeral=True)
+                if member.guild_permissions.manage_roles:
+                    embed=discord.Embed(title="",
+                                        description="I cannot mute this member because they have `Manage Roles` permissions!",
+                                        color=discord.Color.red())
+                    await ctx.respond(embed=embed, ephemeral=True)
+                else:
+                    await member.add_roles(role)
+                    embed=discord.Embed(title="Successfully muted!",
+                                        description=f"Successfully muted {member.mention}!",
+                                        color=discord.Color.green())
+                    embed.add_field(name="**Reason:**", value=reason, inline=False)
+                    await ctx.respond(embed=embed)
+                    for channel in guild.channels:
+                        await channel.set_permissions(role, speak=False, send_messages=False)
+                    print(f"{ctx.author} has successfully muted {member} in {guild}, no reason provided.")
 
 # quran command
 @bot.slash_command(name="quran", description="Read Quran through Sheikh Bot")
@@ -701,7 +706,7 @@ async def closeticket(ctx):
 async def help(ctx, option=None):
     if option == None:
         embed=discord.Embed(title="HELP",
-                            description="Here are the different ways you can call the help command (**RUNNING AN INVALID PROMPT MAKES THE BOT NOT SEND A MESSAGE**):",
+                            description="Here are the different ways you can call the help command:",
                             color=discord.Color.blurple())
         embed.add_field(name="**COMMANDS:**", value="/help commands")
         embed.add_field(name="**ADMINISTRATOR COMMANDS:**", value="/help admin")
