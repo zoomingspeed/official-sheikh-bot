@@ -363,6 +363,9 @@ async def quran(ctx, surah: int, verse: int):
                     ayah=f"{surah_variable}:{verse_variable}",
                     edition=quranpy.Editions.sahih_international
                 )
+                translation_string = f"{translation}"
+                check_length = len(translation_string)
+                shorten = translation_string[:960]
                 user = interaction.user
                 embed2=discord.Embed(title="",
                                     description="Bookmark saved!",
@@ -371,9 +374,35 @@ async def quran(ctx, surah: int, verse: int):
                 embed2.add_field(name="Translation (Sahih International):", value=f"{translation}", inline=False)
                 embed2.add_field(name="The Ayah/Verse (In the name of Allah, the most gracious, the most merciful):", value="", inline=False)
                 embed2.set_image(url=f"https://cdn.islamic.network/quran/images/high-resolution/{surah_variable}_{verse_variable}.png")
-                await ctx.respond("Bookmark saved!", ephemeral=True)
-                message = await user.send(embed=embed2, view=CoolBookMark(timeout=None))
-                await message.pin()
+
+                
+                if check_length > 990:
+                    try:
+                        embed=discord.Embed(title="",
+                                            description="Bookmark saved!",
+                                            color=discord.Color.green())
+                        embed.set_author(name=f"{surah_variable}:{verse_variable} ({surah_name}):", icon_url="https://cdn6.aptoide.com/imgs/6/a/6/6a6336c9503e6bd4bdf98fda89381195_icon.png")
+                        embed.add_field(name="Translation (Sahih International):", value=f"{shorten}...", inline=False)
+                        embed.add_field(name="The Ayah/Verse (In the name of Allah, the most gracious, the most merciful):", value="", inline=False)
+                        embed.set_image(url=f"https://cdn.islamic.network/quran/images/high-resolution/{surah_variable}_{verse_variable}.png")
+                        message = await user.send(embed=embed, view=CoolBookMark(timeout=None))
+                        await message.pin()
+                        await ctx.respond("Bookmark saved!", ephemeral=True)
+                    except discord.errors.Forbidden:
+                        embed3=discord.Embed(title="",
+                                            description="I cannot message you because you have `Direct Messages` off for this server!",
+                                            color=discord.Color.red())
+                        await ctx.respond(embed=embed3 , ephemeral=True)
+                else:
+                    try:
+                        message = await user.send(embed=embed2, view=CoolBookMark(timeout=None))
+                        await message.pin()
+                        await ctx.respond("Bookmark saved!", ephemeral=True)
+                    except discord.errors.Forbidden:
+                        embed3=discord.Embed(title="",
+                                             description="I cannot message you because you have `Direct Messages` off for this server!",
+                                             color=discord.Color.red())
+                        await ctx.respond(embed=embed3, ephemeral=True)
         
         @discord.ui.button(label="Share", row=3, style=discord.ButtonStyle.primary, emoji="🔗")
         async def button_callback7(self, button, interaction):
@@ -468,27 +497,39 @@ async def vquran(ctx, surah: int, verse: int):
                 check_string = len(string)
                 print_short_string = string[:960]
                 if check_string > 990:
-                    embed2=discord.Embed(title="",
-                                        description="Bookmark saved!",
-                                        color=discord.Color.green())
-                    embed2.set_author(name=f"{integer1_int}:{integer2_int} ({surah_variable}):", icon_url="https://cdn6.aptoide.com/imgs/6/a/6/6a6336c9503e6bd4bdf98fda89381195_icon.png")
-                    embed2.add_field(name="Translation (Sahih International):", value=f"{print_short_string}...", inline=False)
-                    embed2.add_field(name="The Ayah/Verse (In the name of Allah, the most gracious, the most merciful):", value="", inline=False)
-                    embed2.set_image(url=f"https://cdn.islamic.network/quran/images/high-resolution/{integer1_int}_{integer2_int}.png")
-                    await ctx.respond("Bookmark saved!", ephemeral=True)
-                    message = await user.send(embed=embed2, view=CoolBookMark(timeout=None))
-                    await message.pin()
+                    try:
+                        embed2=discord.Embed(title="",
+                                             description="Bookmark saved!",
+                                             color=discord.Color.green())
+                        embed2.set_author(name=f"{integer1_int}:{integer2_int} ({surah_variable}):", icon_url="https://cdn6.aptoide.com/imgs/6/a/6/6a6336c9503e6bd4bdf98fda89381195_icon.png")
+                        embed2.add_field(name="Translation (Sahih International):", value=f"{print_short_string}...", inline=False)
+                        embed2.add_field(name="The Ayah/Verse (In the name of Allah, the most gracious, the most merciful):", value="", inline=False)
+                        embed2.set_image(url=f"https://cdn.islamic.network/quran/images/high-resolution/{integer1_int}_{integer2_int}.png")
+                        message = await user.send(embed=embed2, view=CoolBookMark(timeout=None))
+                        await message.pin()
+                        await ctx.respond("Bookmark saved!", ephemeral=True)
+                    except discord.errors.Forbidden:
+                        embed=discord.Embed(title="",
+                                            description="I cannot message you because you have `Direct Messages` off for this server!",
+                                            color=discord.Color.red())
+                        await ctx.respond(embed=embed, ephemeral=True)
                 else:
-                    embed2=discord.Embed(title="",
-                                        description="Bookmark saved!",
-                                        color=discord.Color.green())
-                    embed2.set_author(name=f"{integer1_int}:{integer2_int} ({surah_variable}):", icon_url="https://cdn6.aptoide.com/imgs/6/a/6/6a6336c9503e6bd4bdf98fda89381195_icon.png")
-                    embed2.add_field(name="Translation (Sahih International):", value=f"{translation}", inline=False)
-                    embed2.add_field(name="The Ayah/Verse (In the name of Allah, the most gracious, the most merciful):", value="", inline=False)
-                    embed2.set_image(url=f"https://cdn.islamic.network/quran/images/high-resolution/{integer1_int}_{integer2_int}.png")
-                    await ctx.respond("Bookmark saved!", ephemeral=True)
-                    message = await user.send(embed=embed2, view=CoolBookMark(timeout=None))
-                    await message.pin()
+                    try:
+                        embed2=discord.Embed(title="",
+                                             description="Bookmark saved!",
+                                             color=discord.Color.green())
+                        embed2.set_author(name=f"{integer1_int}:{integer2_int} ({surah_variable}):", icon_url="https://cdn6.aptoide.com/imgs/6/a/6/6a6336c9503e6bd4bdf98fda89381195_icon.png")
+                        embed2.add_field(name="Translation (Sahih International):", value=f"{translation}", inline=False)
+                        embed2.add_field(name="The Ayah/Verse (In the name of Allah, the most gracious, the most merciful):", value="", inline=False)
+                        embed2.set_image(url=f"https://cdn.islamic.network/quran/images/high-resolution/{integer1_int}_{integer2_int}.png")
+                        message = await user.send(embed=embed2, view=CoolBookMark(timeout=None))
+                        await message.pin()
+                        await ctx.respond("Bookmark saved!", ephemeral=True)
+                    except discord.errors.Forbidden:
+                        embed=discord.Embed(title="",
+                                            description="I cannot message you because you have `Direct Messages` off for this server!",
+                                            color=discord.Color.red())
+                        await ctx.respond(embed=embed, ephemeral=True)
     guild = ctx.guild
     surah_variable = q.quran.get_sura_name(integer1_int)
     translation = quranpy.show_verses(
