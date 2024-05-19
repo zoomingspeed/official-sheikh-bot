@@ -597,7 +597,12 @@ async def unmute(ctx, member : discord.Member):
 async def ban(ctx, member : discord.Member, *, reason=None):
     guild = ctx.guild
     coolbotvar = guild.me
-    if ctx.author.guild_permissions.ban_members:
+    if member.guild_permissions.ban_members:
+        embed=discord.Embed(title="",
+                            description="I cannot ban this member because they have the `Ban Members` permission!",
+                            color=discord.Color.red())
+        await ctx.respond(embed=embed, ephemeral=True)
+    else:
         if reason == None:
             if member == coolbotvar:
                 embed=discord.Embed(title="",
@@ -616,8 +621,9 @@ async def ban(ctx, member : discord.Member, *, reason=None):
                 except discord.errors.Forbidden:
                     embed=discord.Embed(title="Ban successful!",
                                         description=f"Successfully banned {member.mention}, no reason provided.",
-                                        color=discord.Color.greed())
-                    await member.ban(embed=embed)
+                                        color=discord.Color.green())
+                    await member.ban()
+                    await ctx.respond(embed=embed)
                     print(f"{ctx.author} has successfully banned {member} from {guild}, no reason provided.")
         else:
             if member == coolbotvar:
@@ -630,7 +636,7 @@ async def ban(ctx, member : discord.Member, *, reason=None):
                     embed=discord.Embed(title="Ban successful!",
                                         color=discord.Color.green())
                     embed.add_field(name="", value=f"Successfully banned {member.mention}!", inline=False)
-                    embed.add_field(title="**Reason:**", value=reason, inline=False)
+                    embed.add_field(name="**Reason:**", value=reason, inline=False)
                     await member.send(f"You have been banned from {guild} due to the following reason:\n\n```{reason}```")
                     await member.ban()
                     await ctx.respond(embed=embed)
@@ -642,12 +648,6 @@ async def ban(ctx, member : discord.Member, *, reason=None):
                     embed.add_field(title="**Reason:**", value=reason, inline=False)
                     await member.ban()
                     await ctx.respond(embed=embed)
-    else:
-        embed=discord.Embed(title="",
-                            description="You do not have permissions to ban other members!",
-                            color=discord.Color.red())
-        await ctx.respond(embed=embed)
-        print(f"Bot could not ban {member} from {guild} due to {ctx.author} having insufficient permissions")
 
 # kick command
 @bot.slash_command(name="kick", description="Kick other members from your server!")
@@ -656,7 +656,12 @@ async def ban(ctx, member : discord.Member, *, reason=None):
 async def kick(ctx, member : discord.Member, reason=None):
     guild = ctx.guild
     coolbotvar = guild.me
-    if ctx.author.guild_permissions.kick_members:
+    if member.guild_permissions.kick_members:
+        embed=discord.Embed(title="",
+                            description="I cannot kick this member because they have the `Kick Members` permission!",
+                            color=discord.Color.red())
+        await ctx.respond(embed=embed, ephemeral=True)
+    else:
         if member == coolbotvar:
             embed=discord.Embed(title="",
                                 description="I cannot kick myself!",
@@ -664,28 +669,41 @@ async def kick(ctx, member : discord.Member, reason=None):
             await ctx.respond(embed=embed, ephemeral=True)
         else:
             if reason == None:
-                guild = ctx.guild
-                embed=discord.Embed(title="Kick successful!",
-                                    color=discord.Color.green())
-                embed.add_field(name="", value=f"Successfully kicked {member.mention}, no reason provided.")
-                await member.send(f"You have been kicked from {guild}, no reason provided.")
-                await ctx.respond(embed=embed)
-                await member.kick()
-                print(f"{ctx.author} has successfully kicked {member} from {guild}, no reason provided.")
+                try:
+                    guild = ctx.guild
+                    embed=discord.Embed(title="Kick successful!",
+                                        color=discord.Color.green())
+                    embed.add_field(name="", value=f"Successfully kicked {member.mention}, no reason provided.")
+                    await member.send(f"You have been kicked from {guild}, no reason provided.")
+                    await ctx.respond(embed=embed)
+                    await member.kick()
+                    print(f"{ctx.author} has successfully kicked {member} from {guild}, no reason provided.")
+                except discord.errors.Forbidden:
+                    guild = ctx.guild
+                    embed=discord.Embed(title="Kick successful!",
+                                        color=discord.Color.green())
+                    embed.add_field(name="", value=f"Successfully kicked {member.mention}, no reason provided.")
+                    await ctx.respond(embed=embed)
+                    await member.kick()
+                    print(f"{ctx.author} has successfully kicked {member} from {guild}, no reason provided.")
             else:
-                embed=discord.Embed(title="Kick successful!",
-                                    color=discord.Color.green())
-                embed.add_field(name="", value=f"Successfully kicked {member.mention}!", inline=False)
-                embed.add_field(name="**Reason:**", value=reason, inline=False)
-                await ctx.respond(embed=embed)
-                await member.send(f"You have been kicked from {guild} due to the following reason: ```{reason}```")
-                await member.kick()
-                print(f"{ctx.author} has successfully kicked out {member} from {guild} due to the following reason: {reason}")
-    else:
-        embed=discord.Embed(title="",
-                            description="You do not have permissions to kick other members!",
-                            color=discord.Color.red())
-        await ctx.respond(embed=embed)
+                try:
+                    embed=discord.Embed(title="Kick successful!",
+                                        color=discord.Color.green())
+                    embed.add_field(name="", value=f"Successfully kicked {member.mention}!", inline=False)
+                    embed.add_field(name="**Reason:**", value=reason, inline=False)
+                    await ctx.respond(embed=embed)
+                    await member.send(f"You have been kicked from {guild} due to the following reason: ```{reason}```")
+                    await member.kick()
+                    print(f"{ctx.author} has successfully kicked out {member} from {guild} due to the following reason: {reason}")
+                except discord.errors.Forbidden:
+                    embed=discord.Embed(title="Kick successful!",
+                                        color=discord.Color.green())
+                    embed.add_field(name="", value=f"Successfully kicked {member.mention}!", inline=False)
+                    embed.add_field(name="**Reason:**", value=reason, inline=False)
+                    await ctx.respond(embed=embed)
+                    await member.kick()
+                    print(f"{ctx.author} has successfully kicked out {member} from {guild} due to the following reason: {reason}")
 
 # activate tickets
 @bot.slash_command(name="activatetickets", description="Send the embed with the button to create a ticket (REQUIRES administrator)")
