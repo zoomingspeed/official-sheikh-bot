@@ -678,7 +678,7 @@ async def kick(ctx, member : discord.Member, reason=None):
                     await ctx.respond(embed=embed)
                     await member.kick()
                     print(f"{ctx.author} has successfully kicked {member} from {guild}, no reason provided.")
-                except discord.errors.Forbidden:
+                except discord.errors.HTTPException:
                     guild = ctx.guild
                     embed=discord.Embed(title="Kick successful!",
                                         color=discord.Color.green())
@@ -691,12 +691,12 @@ async def kick(ctx, member : discord.Member, reason=None):
                     embed=discord.Embed(title="Kick successful!",
                                         color=discord.Color.green())
                     embed.add_field(name="", value=f"Successfully kicked {member.mention}!", inline=False)
-                    embed.add_field(name="**Reason:**", value=reason, inline=False)
+                    embed.add_field(name="Reason:", value=reason, inline=False)
                     await ctx.respond(embed=embed)
                     await member.send(f"You have been kicked from {guild} due to the following reason: ```{reason}```")
                     await member.kick()
                     print(f"{ctx.author} has successfully kicked out {member} from {guild} due to the following reason: {reason}")
-                except discord.errors.Forbidden:
+                except discord.errors.HTTPException:
                     embed=discord.Embed(title="Kick successful!",
                                         color=discord.Color.green())
                     embed.add_field(name="", value=f"Successfully kicked {member.mention}!", inline=False)
