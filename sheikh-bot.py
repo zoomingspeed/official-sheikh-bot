@@ -820,7 +820,7 @@ async def prayertimes(ctx, city, country, method: int, private_message=None):
         prayer_date = prayer_response['data']['date']['readable']
         if private_message == None:
             if method in prayer_methods_list:
-                embed=discord.Embed(title=f"Prayer times of {place_name}",
+                embed=discord.Embed(title=f"Prayer times of {place_name}:",
                                     description=f'',
                                     color=discord.Color.orange())
                 embed.set_author(name=prayer_date, icon_url="https://images-ext-1.discordapp.net/external/u3RRy2sqPlkHUgO2HXkx-JEjTu0aZnFJfT4omEfrPM8/https/images-na.ssl-images-amazon.com/images/I/51q8CGXOltL.png")
@@ -843,7 +843,7 @@ async def prayertimes(ctx, city, country, method: int, private_message=None):
                 await ctx.respond(embed=embed, ephemeral=True)
         elif private_message == "True":
             if method in prayer_methods_list:
-                embed=discord.Embed(title=f"Prayer times for {place_name}",
+                embed=discord.Embed(title=f"Prayer times for {place_name}:",
                                     description=f'',
                                     color=discord.Color.orange())
                 embed.set_author(name=prayer_date, icon_url="https://images-ext-1.discordapp.net/external/u3RRy2sqPlkHUgO2HXkx-JEjTu0aZnFJfT4omEfrPM8/https/images-na.ssl-images-amazon.com/images/I/51q8CGXOltL.png")
