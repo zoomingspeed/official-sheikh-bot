@@ -806,6 +806,7 @@ async def help(ctx, option=None):
 # prayer time command
 @bot.slash_command(name="prayertimes", description="Check your local towns prayer times")
 async def prayertimes(ctx, city, country, method: int, private_message=None):
+    await ctx.defer()
     try:
         prayer_methods_list = [0, 1, 2, 3 , 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
         place_url=f"https://api.api-ninjas.com/v1/geocoding?city={city}&country={country}"
