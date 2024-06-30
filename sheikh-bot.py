@@ -840,8 +840,8 @@ async def prayertimes(ctx, city, country, method: int, private_message: bool, tw
                 isha_12hr = datetime.strptime(prayer_response['data']['timings']['Isha'], "%H:%M")
                 imsak_12hr = datetime.strptime(prayer_response['data']['timings']['Imsak'], "%H:%M")
                 embed12=discord.Embed(title=f"Prayer times of {place_name}:",
-                                        description=f'',
-                                        color=discord.Color.orange())
+                                      description=f'',
+                                      color=discord.Color.orange())
                 embed12.set_author(name=prayer_date, icon_url="https://images-ext-1.discordapp.net/external/u3RRy2sqPlkHUgO2HXkx-JEjTu0aZnFJfT4omEfrPM8/https/images-na.ssl-images-amazon.com/images/I/51q8CGXOltL.png")
                 embed12.add_field(name="Fajr:", value=fajr_12hr.strftime("%I:%M %p"), inline=False)
                 embed12.add_field(name="Sunrise:", value=sunrise_12hr.strftime("%I:%M %p"), inline=False)
