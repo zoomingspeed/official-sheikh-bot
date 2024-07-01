@@ -12,8 +12,8 @@ If you would like to contribute to this project, create a pull request, or if yo
 # COPYRIGHT:
 You're under no obligation to choose a license. However, without a license, the default copyright laws apply, meaning that you retain all rights to your source code and **no one may reproduce, distribute, or create derivative works from your work. ([Github License Page](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository))** If you're creating an open source project, we strongly encourage you to include an open source license. The Open Source Guide provides additional guidance on choosing the correct license for your project.
 
-# LINKS
-Sheikh Bot's invite link from https://top.gg/bot/1158481964559503360
+# INVITE THE BOT
+[Click here to invite Sheikh Bot to your server!](https://top.gg/bot/1158481964559503360)
 
 # CREDITS
 I would like to give credit to [@dsdanielpark](https://github.com/dsdanielpark), [@niztg](https://github.com/niztg/), [@bbc2](https://github.com/bbc2), [@Rapptz](https://github.com/rapptz), and the other owners of the Python packages included with this Discord bot. I consider them contributors for allowing me to use their packages on https://pypi.org, so credit goes to them for the packages.
