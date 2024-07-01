@@ -10,7 +10,7 @@ If you would like to contribute to this project, create a pull request, or if yo
 - Fix the "successfully sent prayer times" embed sending when the command is called in DM's and the `private_message` parameter is true!
 
 # COPYRIGHT:
-You're under no obligation to choose a license. **However, without a license, the default copyright laws apply, meaning that you retain all rights to your source code and no one may reproduce, distribute, or create derivative works from your work. ([Github License Page](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository))** If you're creating an open source project, we strongly encourage you to include an open source license. The Open Source Guide provides additional guidance on choosing the correct license for your project.
+You're under no obligation to choose a license. However, without a license, the default copyright laws apply, meaning that you retain all rights to your source code and **no one may reproduce, distribute, or create derivative works from your work. ([Github License Page](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository))** If you're creating an open source project, we strongly encourage you to include an open source license. The Open Source Guide provides additional guidance on choosing the correct license for your project.
 
 # LINKS
 Sheikh Bot's invite link from https://top.gg/bot/1158481964559503360
