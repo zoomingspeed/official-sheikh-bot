@@ -7,7 +7,6 @@ If you would like to contribute to this project, create a pull request, or if yo
 
 - Added new prayer time command!
 - Added 12 hour format to prayer time command!
-- Fix indent on an embed variable (yay it looks normal now)!
 - Fix the "successfully sent prayer times" embed sending when the command is called in DM's and the `private_message` parameter is true!
 
 # COPYRIGHT:
