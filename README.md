@@ -8,6 +8,7 @@ If you would like to contribute to this project, create a pull request, or if yo
 - Added new prayer time command!
 - Added 12 hour format to prayer time command!
 - Fix the "successfully sent prayer times" embed sending when the command is called in DM's and the `private_message` parameter is true!
+- Revamp help command to include a parameter with option choices!
 
 # COPYRIGHT:
 You're under no obligation to choose a license. However, without a license, the default copyright laws apply, meaning that you retain all rights to your source code and **no one may reproduce, distribute, or create derivative works from your work. ([Github License Page](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository))** If you're creating an open source project, we strongly encourage you to include an open source license. The Open Source Guide provides additional guidance on choosing the correct license for your project.
