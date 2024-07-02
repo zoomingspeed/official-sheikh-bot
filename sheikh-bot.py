@@ -3,6 +3,7 @@ from discord.utils import get
 from discord.ext import commands
 from discord import default_permissions
 from discord.ext import tasks
+from discord.commands import Option
 import random
 import quranpy
 import pyquran as q
@@ -760,8 +761,9 @@ async def closeticket(ctx):
 
 # help command
 @bot.slash_command(name="help", description="See what commands are available")
-async def help(ctx, option=None):
-    if option == None:
+@discord.option("option", description="The type of help that you want to receive back from the bot", choices=['Main', 'Commands', 'Admin', 'Prayer'])
+async def help(ctx: discord.ApplicationContext, option: str):
+    if option == "Main":
         embed=discord.Embed(title="HELP",
                             description="Here are the different ways you can call the help command:",
                             color=discord.Color.blurple())
@@ -769,15 +771,15 @@ async def help(ctx, option=None):
         embed.add_field(name="**ADMINISTRATOR COMMANDS:**", value="/help admin")
         embed.add_field(name="**PRAYER COMMANDS:**", value="/help prayer")
         await ctx.respond(embed=embed)
-    elif option == "commands":
+    elif option == "Commands":
         embed=discord.Embed(title="Commands:",
                             description="Here are all of the commands available with the bot:",
                             color=discord.Color.green())
         embed.add_field(name="**Quran Commands**", value="/vquran (surah number, verse number), /quran (surah number, verse number)", inline=False)
-        embed.add_field(name="**Prayertime Command**", value="/prayertimes", inline=False)
+        embed.add_field(name="**Prayertime Command**", value="/prayertimes `city` `country (if needed)` `method (integer)` `", inline=False)
         embed.add_field(name="**Close ticket:**", value="/closeticket (only works in ticket channel)")
         await ctx.respond(embed=embed)
-    elif option == "admin":
+    elif option == "Admin":
         embed=discord.Embed(title="**ADMINISTRATOR COMMANDS:**",
                             description="Administrator commands for Sheikh Bot",
                             color=discord.Color.yellow())
@@ -786,27 +788,22 @@ async def help(ctx, option=None):
         embed.add_field(name="Kick command:", value="/kick (ping user) (**OPTIONAL:** reason)", inline=False)
         embed.add_field(name="Activate tickets:", value="/activatetickets **(REQUIRES ADMINISTRATOR)**", inline=False)
         await ctx.respond(embed=embed)
-    elif option == "prayer":
+    elif option == "Prayer":
         embed=discord.Embed(title="**PRAYER TIME GUIDE**",
                             description="Guide for using /prayertimes with Sheikh Bot",
                             color=discord.Color.dark_green())
-        embed.add_field(name="**METHODS:**", value="The bot uses aladhan.com, which persists of 16 prayer time methods including one to use your own custom prayer time method. We use the first fourteen, which are listed here: ``https://aladhan.com/prayer-times-api``. Any integer besides 0-14 will raise a message telling you it is an invalid integer.", inline=False)
+        embed.add_field(name="**METHODS:**", value="The bot uses aladhan.com, which persists of 16 prayer time methods including one to use your own custom prayer time method. We use the first fourteen, which are listed here: ``/methodslist``. Any integer besides 0-14 will raise a message telling you it is an invalid integer.", inline=False)
         embed.add_field(name="**CITY AND/OR COUNTRY:**", value="The command asks you for a prompt of your city and your country. You can put anything as the country, but it is a required prompt in order to print more accurate prayer times. *PLEASE BE WARY THAT THE API USED TO GEO LOCATE THE COORDINATES TO YOUR CITY PULL THE FIRST CITY THAT IS LISTED IN THE API RESPONSE. SOME CITIES HAVE THE SAME NAME AS EACH OTHER BUT ARE LOCATED IN DIFFERENT AREAS, WHICH CAN RESULT IN PRAYER TIMES THAT DO NOT MATCH YOUR CITY.*", inline=False)
-        embed.add_field(name="**PRIVATE MESSAGE:**", value='Sheikh Bot respects your privacy. As a result of respecting your privacy, Sheikh Bot provides a parameter that shows two options, which are true and false. If you select true, it sends you a direct message with the prayer times included. Pressing false will make the bot print the prayer times on the server you called the command in.**.', inline=False)
+        embed.add_field(name="**PRIVATE MESSAGE:**", value='Sheikh Bot respects your privacy. As a result of respecting your privacy, Sheikh Bot provides a parameter that shows two options, which are true and false. If you select true, it sends you a direct message with the prayer times included. Pressing false will make the bot print the prayer times on the server you called the command in.', inline=False)
         await ctx.respond(embed=embed)
-    else:
-        embed=discord.Embed(title="",
-                            description="Invalid help category!",
-                            color=discord.Color.red())
-        await ctx.respond(embed=embed, ephemeral=True)
         
 # prayer time command
 @bot.slash_command(name="prayertimes", description="Check your local towns prayer times")
 async def prayertimes(ctx, city, country, method: int, private_message: bool, twelve_hour_format: bool):
+    prayer_methods_list = [0, 1, 2, 3 , 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 16]
     await ctx.defer()
     if ctx.channel.type == discord.ChannelType.private:
         try:
-            prayer_methods_list = [0, 1, 2, 3 , 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
             place_url=f"https://api.api-ninjas.com/v1/geocoding?city={city}&country={country}"
             place_response = requests.get(place_url, headers={'X-Api-Key': ''})
             place_data = place_response.json()[0]
@@ -878,7 +875,6 @@ async def prayertimes(ctx, city, country, method: int, private_message: bool, tw
             await ctx.respond(embed=embed, ephemeral=True)
     else:
         try:
-            prayer_methods_list = [0, 1, 2, 3 , 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
             place_url=f"https://api.api-ninjas.com/v1/geocoding?city={city}&country={country}"
             place_response = requests.get(place_url, headers={'X-Api-Key': ''})
             place_data = place_response.json()[0]
@@ -968,6 +964,15 @@ async def prayertimes(ctx, city, country, method: int, private_message: bool, tw
                                 description="That is not a valid city and/or country!",
                                 color=discord.Color.red())
             await ctx.respond(embed=embed, ephemeral=True)
+
+# prayer time methods list
+@bot.slash_command(name="methodslist", description="Shows a list of prayer time methods")
+async def methodslist(ctx):
+    embed=discord.Embed(title="",
+                        description="0 - Shia Ithna-Ashari\n1 - University of Islamic Sciences, Karachi\n2 - Islamic Society of North America\n3 - Muslim World League\n4 - Umm Al-Qura University, Makkah\n5 - Egyptian General Authority of Survey\n7 - Institute of Geophysics, University of Tehran\n8 - Gulf Region\n9 - Kuwait\n10 - Qatar\n11 - Majlis Ugama Islam Singapura, Singapore\n12 - Union Organization islamic de France\n13 - Diyanet İşleri Başkanlığı, Turkey\n14 - Spiritual Administration of Muslims of Russia\n16 - Dubai (unofficial)",
+                        color=discord.Color.blurple())
+    embed.set_author(name="Prayer Time Methods", icon_url="https://images-ext-1.discordapp.net/external/u3RRy2sqPlkHUgO2HXkx-JEjTu0aZnFJfT4omEfrPM8/https/images-na.ssl-images-amazon.com/images/I/51q8CGXOltL.png")
+    await ctx.respond(embed=embed)
 
 # letting the bot run
 bot.run("")
