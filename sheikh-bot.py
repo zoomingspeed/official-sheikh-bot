@@ -801,7 +801,7 @@ async def help(ctx: discord.ApplicationContext, option: str):
 @bot.slash_command(name="prayertimes", description="Check your local towns prayer times")
 async def prayertimes(ctx, city, country, method: int, private_message: bool, twelve_hour_format: bool):
     prayer_methods_list = [0, 1, 2, 3 , 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 16]
-    await ctx.defer()
+    await ctx.defer(ephemeral = private_message)
     if ctx.channel.type == discord.ChannelType.private:
         try:
             place_url=f"https://api.api-ninjas.com/v1/geocoding?city={city}&country={country}"
