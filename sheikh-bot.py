@@ -648,7 +648,7 @@ async def pquran(ctx, page: int):
                     embed=discord.Embed(title="",
                                         description="This is not your Quran panel!",
                                         color=discord.Color.red())
-                    await interaction.response.send(embed=embed, ephemeral=True)
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
                 else:
                     try:
                         await ctx.author.send(f"If you want to continue off the last page, then you stopped at page `{page}`!")
