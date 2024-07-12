@@ -7,7 +7,7 @@ If you would like to contribute to this project, create a pull request, or if yo
 
 - Added `/pquran`, which let's you read Quran by page!
 - Added 12 hour format to prayer time command!
-- Revamp help command to include a parameter with option choices!
+- Added Asr Hanafi school of thought prayer time!
 - Add new prayer time calculation method!
 - Fixed `private_message` bool not being so private!
 
