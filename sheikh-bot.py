@@ -599,8 +599,8 @@ async def pquran(ctx, page: int):
                     if page > 1:
                         page -= 1
                         page_format = str(page).zfill(3)
-                        embed=discord.Embed(title="",
-                                            description=f"Page Number: {page}",
+                        embed=discord.Embed(title=f"Page Number: {page}",
+                                            description="",
                                             color=discord.Color.orange())
                         embed.set_author(name="Quran By Page", icon_url="https://cdn6.aptoide.com/imgs/6/a/6/6a6336c9503e6bd4bdf98fda89381195_icon.png")
                         embed.set_image(url=f"https://www.searchtruth.org/quran/images1/{page_format}.jpg")
@@ -608,8 +608,8 @@ async def pquran(ctx, page: int):
                     else:
                         page = 604
                         page_format = str(page).zfill(3)
-                        embed=discord.Embed(title="",
-                                            description=f"Page Number: {page}",
+                        embed=discord.Embed(title=f"Page Number: {page}",
+                                            description="",
                                             color=discord.Color.orange())
                         embed.set_author(name="Quran By Page", icon_url="https://cdn6.aptoide.com/imgs/6/a/6/6a6336c9503e6bd4bdf98fda89381195_icon.png")
                         embed.set_image(url=f"https://www.searchtruth.org/quran/images1/{page_format}.jpg")
@@ -627,8 +627,8 @@ async def pquran(ctx, page: int):
                     if page < 604:
                         page += 1
                         page_format = str(page).zfill(3)
-                        embed=discord.Embed(title="",
-                                            description=f"Page Number: {page}",
+                        embed=discord.Embed(title=f"Page Number: {page}",
+                                            description="",
                                             color=discord.Color.orange())
                         embed.set_author(name="Quran By Page", icon_url="https://cdn6.aptoide.com/imgs/6/a/6/6a6336c9503e6bd4bdf98fda89381195_icon.png")
                         embed.set_image(url=f"https://www.searchtruth.org/quran/images1/{page_format}.jpg")
@@ -636,8 +636,8 @@ async def pquran(ctx, page: int):
                     else:
                         page = 1
                         page_format = str(page).zfill(3)
-                        embed=discord.Embed(title="",
-                                            description=f"Page Number: {page}",
+                        embed=discord.Embed(title=f"Page Number: {page}",
+                                            description="",
                                             color=discord.Color.orange())
                         embed.set_author(name="Quran By Page", icon_url="https://cdn6.aptoide.com/imgs/6/a/6/6a6336c9503e6bd4bdf98fda89381195_icon.png")
                         embed.set_image(url=f"https://www.searchtruth.org/quran/images1/{page_format}.jpg")
@@ -660,8 +660,8 @@ async def pquran(ctx, page: int):
                         await interaction.response.send_message(embed=embed, ephemeral=True)
                         await interaction.message.delete()
     
-    embed=discord.Embed(title="",
-                        description=f"Page Number: {page}",
+    embed=discord.Embed(title=f"Page Number: {page}",
+                        description="",
                         color=discord.Color.orange())
     embed.set_author(name="Quran By Page", icon_url="https://cdn6.aptoide.com/imgs/6/a/6/6a6336c9503e6bd4bdf98fda89381195_icon.png")
     embed.set_image(url=f"https://www.searchtruth.org/quran/images1/{page_format}.jpg")
@@ -867,15 +867,16 @@ async def closeticket(ctx):
 
 # help command
 @bot.slash_command(name="help", description="See what commands are available")
-@discord.option("option", description="The type of help that you want to receive back from the bot", choices=['Main', 'Commands', 'Admin', 'Prayer'])
+@discord.option("option", description="The type of help that you want to receive back from the bot", choices=['Main', 'Commands', 'Admin', 'Prayer', 'Quran'])
 async def help(ctx: discord.ApplicationContext, option: str):
     if option == "Main":
         embed=discord.Embed(title="HELP",
                             description="Here are the different ways you can call the help command:",
                             color=discord.Color.blurple())
         embed.add_field(name="**COMMANDS:**", value="/help commands")
-        embed.add_field(name="**ADMINISTRATOR COMMANDS:**", value="/help admin")
-        embed.add_field(name="**PRAYER COMMANDS:**", value="/help prayer")
+        embed.add_field(name="**ADMINISTRATOR COMMANDS:**", value="/help admin", inline=False)
+        embed.add_field(name="**PRAYER COMMANDS:**", value="/help prayer", inline=False)
+        embed.add_field(name="**QURAN COMMANDS**", value="/help quran", inline=False)
         await ctx.respond(embed=embed)
     elif option == "Commands":
         embed=discord.Embed(title="Commands:",
@@ -898,10 +899,17 @@ async def help(ctx: discord.ApplicationContext, option: str):
         embed=discord.Embed(title="**PRAYER TIME GUIDE**",
                             description="Guide for using /prayertimes with Sheikh Bot",
                             color=discord.Color.dark_green())
-        embed.add_field(name="**METHODS:**", value="The bot uses aladhan.com, which persists of 16 prayer time methods including one to use your own custom prayer time method. We use the first fourteen, which are listed here: ``/methodslist``. Any integer besides 0-14 will raise a message telling you it is an invalid integer.", inline=False)
+        embed.add_field(name="**METHODS:**", value="The bot uses aladhan.com, which persists of a lot of prayer time methods, including one to use your own custom prayer time method. We use fifteen of them, which are listed here: ``/methodslist``. Any integer besides 0-16 (15 not included) will raise a message telling you it is an invalid integer.", inline=False)
         embed.add_field(name="**CITY AND/OR COUNTRY:**", value="The command asks you for a prompt of your city and your country. You can put anything as the country, but it is a required prompt in order to print more accurate prayer times. *PLEASE BE WARY THAT THE API USED TO GEO LOCATE THE COORDINATES TO YOUR CITY PULL THE FIRST CITY THAT IS LISTED IN THE API RESPONSE. SOME CITIES HAVE THE SAME NAME AS EACH OTHER BUT ARE LOCATED IN DIFFERENT AREAS, WHICH CAN RESULT IN PRAYER TIMES THAT DO NOT MATCH YOUR CITY.*", inline=False)
         embed.add_field(name="**PRIVATE MESSAGE:**", value='Sheikh Bot respects your privacy. As a result of respecting your privacy, Sheikh Bot provides a parameter that shows two options, which are true and false. If you select true, it sends you a direct message with the prayer times included. Pressing false will make the bot print the prayer times on the server you called the command in.', inline=False)
         await ctx.respond(embed=embed)
+    elif option == "Quran":
+        embed=discord.Embed(title="**QURAN COMMANDS:**",
+                            description="Commands relating to Quran",
+                            color=discord.Color.orange())
+        embed.add_field(name="Print one verse:", value="/vquran (surah number) (verse number)", inline=False)
+        embed.add_field(name="Read Quran by Ayah:", value="/quran (surah number) (verse number)", inline=False)
+        embed.add_field(name="Read Quran by page:", value="/pquran (page number)", inline=False)
         
 # prayer time command
 @bot.slash_command(name="prayertimes", description="Check your local towns prayer times")
