@@ -5,7 +5,7 @@ If you would like to contribute to this project, create a pull request, or if yo
 
 # PATCH NOTES
 
-- Added new prayer time command!
+- Added `/pquran`, which let's you read Quran by page!
 - Added 12 hour format to prayer time command!
 - Revamp help command to include a parameter with option choices!
 - Add new prayer time calculation method!
