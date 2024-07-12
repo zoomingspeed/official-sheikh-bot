@@ -336,8 +336,21 @@ async def quran(ctx, surah: int, verse: int):
                                              color=discord.Color.red())
                 await interaction.response.send_message(embed=embedsomething, ephemeral=True)
             else:
-                self.disable_all_items()
-                await interaction.response.edit_message(view=self)
+                if interaction.user != ctx.author:
+                    embed=discord.Embed(title="",
+                                        description="This is not your Quran panel!",
+                                        color=discord.Color.red())
+                    await interaction.response.send(embed=embed, ephemeral=True)
+                else:
+                    try:
+                        await ctx.author.send(f"If you want to continue off the last ayah, then you stopped at `{surah_variable}:{verse_variable}`!")
+                        await interaction.message.delete()
+                    except discord.errors.Forbidden:
+                        await interaction.message.delete()
+                        embed=discord.Embed(title="",
+                                            description=f"Your `Direct Messages` are off for this server! Please enable them, as the bot sends in them the last ayah you were on. The last ayah you were on was `{surah_variable}:{verse_variable}`",
+                                            color=discord.Color.red())
+                        await interaction.response.send(embed=embed, ephemeral=True)
         
         @discord.ui.button(label="Bookmark", row=3, style=discord.ButtonStyle.success, emoji="⭐")
         async def button_callback6(self, button, interaction):
@@ -561,6 +574,99 @@ async def vquran(ctx, surah: int, verse: int):
         await ctx.respond(embed=embed2, view=ShareAndDelete(timeout=None))
         print(f"Successfully sent surah {integer1_int}, ayah/verse {integer2_int} to {ctx.author} in {guild}")
 
+# quran by page command
+@bot.slash_command(name="pquran", description="Browse the Quran by page")
+async def pquran(ctx, page: int):
+    page_range = range(1, 604)
+    page_format = str(page).zfill(3)
+    if page not in page_range:
+        embed=discord.Embed(title="",
+                            description="This is not a valid page number! A valid page number is a number between 1-604.",
+                            color=discord.Color.red())
+        await ctx.respond(embed=embed, ephemeral=True)
+    else:
+        class QuranByPage(discord.ui.View):
+            @discord.ui.button(label="Previous Page", style=discord.ButtonStyle.blurple, emoji="⬅️", row=1)
+            async def button_callback(self, button, interaction):
+                if interaction.user != ctx.author:
+                    embed=discord.Embed(title="",
+                                        description="This is not your Quran panel!",
+                                        color=discord.Color.red())
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                else:
+                    nonlocal page
+                    nonlocal page_format
+                    if page > 1:
+                        page -= 1
+                        page_format = str(page).zfill(3)
+                        embed=discord.Embed(title="",
+                                            description=f"Page Number: {page}",
+                                            color=discord.Color.orange())
+                        embed.set_author(name="Quran By Page", icon_url="https://cdn6.aptoide.com/imgs/6/a/6/6a6336c9503e6bd4bdf98fda89381195_icon.png")
+                        embed.set_image(url=f"https://www.searchtruth.org/quran/images1/{page_format}.jpg")
+                        await interaction.response.edit_message(embed=embed, view=QuranByPage(timeout=None))
+                    else:
+                        page = 604
+                        page_format = str(page).zfill(3)
+                        embed=discord.Embed(title="",
+                                            description=f"Page Number: {page}",
+                                            color=discord.Color.orange())
+                        embed.set_author(name="Quran By Page", icon_url="https://cdn6.aptoide.com/imgs/6/a/6/6a6336c9503e6bd4bdf98fda89381195_icon.png")
+                        embed.set_image(url=f"https://www.searchtruth.org/quran/images1/{page_format}.jpg")
+                        await interaction.response.edit_message(embed=embed, view=QuranByPage(timeout=None))
+            @discord.ui.button(label="Next Page ➡️", style=discord.ButtonStyle.green, emoji=None, row=1)
+            async def button_callback1(self, button, interaction):
+                if interaction.user != ctx.author:
+                    embed=discord.Embed(title="",
+                                        description="This is not your Quran panel!",
+                                        color=discord.Color.red())
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                else:
+                    nonlocal page
+                    nonlocal page_format
+                    if page < 604:
+                        page += 1
+                        page_format = str(page).zfill(3)
+                        embed=discord.Embed(title="",
+                                            description=f"Page Number: {page}",
+                                            color=discord.Color.orange())
+                        embed.set_author(name="Quran By Page", icon_url="https://cdn6.aptoide.com/imgs/6/a/6/6a6336c9503e6bd4bdf98fda89381195_icon.png")
+                        embed.set_image(url=f"https://www.searchtruth.org/quran/images1/{page_format}.jpg")
+                        await interaction.response.edit_message(embed=embed, view=QuranByPage(timeout=None))
+                    else:
+                        page = 1
+                        page_format = str(page).zfill(3)
+                        embed=discord.Embed(title="",
+                                            description=f"Page Number: {page}",
+                                            color=discord.Color.orange())
+                        embed.set_author(name="Quran By Page", icon_url="https://cdn6.aptoide.com/imgs/6/a/6/6a6336c9503e6bd4bdf98fda89381195_icon.png")
+                        embed.set_image(url=f"https://www.searchtruth.org/quran/images1/{page_format}.jpg")
+                        await interaction.response.edit_message(embed=embed, view=QuranByPage(timeout=None))
+            @discord.ui.button(label="Stop", style=discord.ButtonStyle.red, emoji="🛑", row=2)
+            async def button_callback2(self, button, interaction):
+                if interaction.user != ctx.author:
+                    embed=discord.Embed(title="",
+                                        description="This is not your Quran panel!",
+                                        color=discord.Color.red())
+                    await interaction.response.send(embed=embed, ephemeral=True)
+                else:
+                    try:
+                        await ctx.author.send(f"If you want to continue off the last page, then you stopped at page `{page}`!")
+                        await interaction.message.delete()
+                    except discord.errors.Forbidden:
+                        embed=discord.Embed(title="",
+                                            description=f"Your `Direct Messages` are off for this server! Please enable them, as the bot sends in them the last page you were on before you stopped. The last page you were on is `{page}`.",
+                                            color=discord.Color.red())
+                        await interaction.response.send_message(embed=embed, ephemeral=True)
+                        await interaction.message.delete()
+    
+    embed=discord.Embed(title="",
+                        description=f"Page Number: {page}",
+                        color=discord.Color.orange())
+    embed.set_author(name="Quran By Page", icon_url="https://cdn6.aptoide.com/imgs/6/a/6/6a6336c9503e6bd4bdf98fda89381195_icon.png")
+    embed.set_image(url=f"https://www.searchtruth.org/quran/images1/{page_format}.jpg")
+    await ctx.respond(embed=embed, view=QuranByPage(timeout=None))
+                    
 # unmute command
 @bot.slash_command(name="unmute", description="Unmute a member that is muted in your server")
 @default_permissions(manage_roles = True)
