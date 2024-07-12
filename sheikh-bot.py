@@ -924,9 +924,12 @@ async def prayertimes(ctx, city, country, method: int, private_message: bool, tw
             place_data_latitude = place_data['latitude']
             place_data_longitude = place_data['longitude']
             place_name = place_data['name']
-            prayer_url = f"http://api.aladhan.com/v1/timings?latitude={place_data_latitude}&longitude={place_data_longitude}&method={method}"
+            prayer_url = f"http://api.aladhan.com/v1/timings?latitude={place_data_latitude}&longitude={place_data_longitude}&method={method}&school=0"
+            asr_hanafi_link = f"http://api.aladhan.com/v1/timings?latitude={place_data_latitude}&longitude={place_data_longitude}&method={method}&school=1"
             prayer_requests = requests.get(prayer_url)
+            asr_hanafi_request = requests.get(asr_hanafi_link)
             prayer_response = prayer_requests.json()
+            asr_hanafi_response = asr_hanafi_request.json()
             prayer_date = prayer_response['data']['date']['readable']
             if method in prayer_methods_list:
                 embedmain=discord.Embed(title=f"Prayer times of {place_name}:",
@@ -937,6 +940,7 @@ async def prayertimes(ctx, city, country, method: int, private_message: bool, tw
                 embedmain.add_field(name="Sunrise:", value=prayer_response['data']['timings']['Sunrise'], inline=False)
                 embedmain.add_field(name="Dhuhr:", value=prayer_response['data']['timings']['Dhuhr'], inline=False)
                 embedmain.add_field(name="Asr:", value=prayer_response['data']['timings']['Asr'], inline=False)
+                embedmain.add_field(name="Asr (Hanafi):", value=asr_hanafi_response['data']['timings']['Asr'], inline=False)
                 embedmain.add_field(name="Sunset:", value=prayer_response['data']['timings']['Sunset'], inline=False)
                 embedmain.add_field(name="Maghrib:", value=prayer_response['data']['timings']['Maghrib'], inline=False)
                 embedmain.add_field(name="Isha:", value=prayer_response['data']['timings']['Isha'], inline=False)
@@ -947,6 +951,7 @@ async def prayertimes(ctx, city, country, method: int, private_message: bool, tw
                     sunrise_12hr = datetime.strptime(prayer_response['data']['timings']['Sunrise'], "%H:%M")
                     dhuhr_12hr = datetime.strptime(prayer_response['data']['timings']['Dhuhr'], "%H:%M")
                     asr_12hr = datetime.strptime(prayer_response['data']['timings']['Asr'], "%H:%M")
+                    asr_hanafi_12hr = datetime.strptime(asr_hanafi_response['data']['timings']['Asr'], "%H:%M")
                     sunset_12hr = datetime.strptime(prayer_response['data']['timings']['Sunset'], "%H:%M")
                     maghrib_12hr = datetime.strptime(prayer_response['data']['timings']['Maghrib'], "%H:%M")
                     isha_12hr = datetime.strptime(prayer_response['data']['timings']['Isha'], "%H:%M")
@@ -959,6 +964,7 @@ async def prayertimes(ctx, city, country, method: int, private_message: bool, tw
                     embed12.add_field(name="Sunrise:", value=sunrise_12hr.strftime("%I:%M %p"), inline=False)
                     embed12.add_field(name="Dhuhr:", value=dhuhr_12hr.strftime("%I:%M %p"), inline=False)
                     embed12.add_field(name="Asr:", value=asr_12hr.strftime("%I:%M %p"), inline=False)
+                    embed12.add_field(name="Asr (Hanafi):", value=asr_hanafi_12hr.strftime("%I:%M %p"), inline=False)
                     embed12.add_field(name="Sunset:", value=sunset_12hr.strftime("%I:%M %p"), inline=False)
                     embed12.add_field(name="Maghrib:", value=maghrib_12hr.strftime("%I:%M %p"), inline=False)
                     embed12.add_field(name="Isha:", value=isha_12hr.strftime("%I:%M %p"), inline=False)
@@ -996,8 +1002,11 @@ async def prayertimes(ctx, city, country, method: int, private_message: bool, tw
             place_data_longitude = place_data['longitude']
             place_name = place_data['name']
             prayer_url = f"http://api.aladhan.com/v1/timings?latitude={place_data_latitude}&longitude={place_data_longitude}&method={method}"
+            asr_hanafi_link = f"http://api.aladhan.com/v1/timings?latitude={place_data_latitude}&longitude={place_data_longitude}&method={method}&school=1"
             prayer_requests = requests.get(prayer_url)
+            asr_hanafi_request = requests.get(asr_hanafi_link)
             prayer_response = prayer_requests.json()
+            asr_hanafi_response = asr_hanafi_request.json()
             prayer_date = prayer_response['data']['date']['readable']
             if method in prayer_methods_list:
                 embedmain=discord.Embed(title=f"Prayer times of {place_name}:",
@@ -1008,6 +1017,7 @@ async def prayertimes(ctx, city, country, method: int, private_message: bool, tw
                 embedmain.add_field(name="Sunrise:", value=prayer_response['data']['timings']['Sunrise'], inline=False)
                 embedmain.add_field(name="Dhuhr:", value=prayer_response['data']['timings']['Dhuhr'], inline=False)
                 embedmain.add_field(name="Asr:", value=prayer_response['data']['timings']['Asr'], inline=False)
+                embedmain.add_field(name="Asr (Hanafi):", value=asr_hanafi_response['data']['timings']['Asr'], inline=False)
                 embedmain.add_field(name="Sunset:", value=prayer_response['data']['timings']['Sunset'], inline=False)
                 embedmain.add_field(name="Maghrib:", value=prayer_response['data']['timings']['Maghrib'], inline=False)
                 embedmain.add_field(name="Isha:", value=prayer_response['data']['timings']['Isha'], inline=False)
@@ -1018,6 +1028,7 @@ async def prayertimes(ctx, city, country, method: int, private_message: bool, tw
                     sunrise_12hr = datetime.strptime(prayer_response['data']['timings']['Sunrise'], "%H:%M")
                     dhuhr_12hr = datetime.strptime(prayer_response['data']['timings']['Dhuhr'], "%H:%M")
                     asr_12hr = datetime.strptime(prayer_response['data']['timings']['Asr'], "%H:%M")
+                    asr_hanafi_12hr = datetime.strptime(asr_hanafi_response['data']['timings']['Asr'], "%H:%M")
                     sunset_12hr = datetime.strptime(prayer_response['data']['timings']['Sunset'], "%H:%M")
                     maghrib_12hr = datetime.strptime(prayer_response['data']['timings']['Maghrib'], "%H:%M")
                     isha_12hr = datetime.strptime(prayer_response['data']['timings']['Isha'], "%H:%M")
@@ -1030,6 +1041,7 @@ async def prayertimes(ctx, city, country, method: int, private_message: bool, tw
                     embed12.add_field(name="Sunrise:", value=sunrise_12hr.strftime("%I:%M %p"), inline=False)
                     embed12.add_field(name="Dhuhr:", value=dhuhr_12hr.strftime("%I:%M %p"), inline=False)
                     embed12.add_field(name="Asr:", value=asr_12hr.strftime("%I:%M %p"), inline=False)
+                    embed12.add_field(name="Asr (Hanafi):", value=asr_hanafi_12hr.strftime("%I:%M %p"), inline=False)
                     embed12.add_field(name="Sunset:", value=sunset_12hr.strftime("%I:%M %p"), inline=False)
                     embed12.add_field(name="Maghrib:", value=maghrib_12hr.strftime("%I:%M %p"), inline=False)
                     embed12.add_field(name="Isha:", value=isha_12hr.strftime("%I:%M %p"), inline=False)
