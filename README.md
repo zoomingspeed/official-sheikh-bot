@@ -9,7 +9,7 @@ If you would like to contribute to this project, create a pull request, or if yo
 - Added 12 hour format to prayer time command!
 - Added Asr Hanafi school of thought prayer time!
 - Add new prayer time calculation method!
-- Fixed `private_message` bool not being so private!
+- Revamp prayer times command!
 
 # COPYRIGHT:
 You're under no obligation to choose a license. However, without a license, the default copyright laws apply, meaning that you retain all rights to your source code and **no one may reproduce, distribute, or create derivative works from your work. ([Github License Page](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository))** If you're creating an open source project, we strongly encourage you to include an open source license. The Open Source Guide provides additional guidance on choosing the correct license for your project.
