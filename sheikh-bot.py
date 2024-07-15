@@ -12,6 +12,8 @@ import os
 import requests
 import datetime
 from datetime import datetime
+from collections import namedtuple
+from discord import FFmpegPCMAudio
 
 # declaring the bot variable
 intents = discord.Intents.all()
@@ -900,7 +902,7 @@ async def help(ctx: discord.ApplicationContext, option: str):
                             description="Guide for using /prayertimes with Sheikh Bot",
                             color=discord.Color.dark_green())
         embed.add_field(name="**METHODS:**", value="The bot uses aladhan.com, which persists of a lot of prayer time methods, including one to use your own custom prayer time method. We use fifteen of them, which are listed here: ``/methodslist``. Any integer besides 0-16 (15 not included) will raise a message telling you it is an invalid integer.", inline=False)
-        embed.add_field(name="**CITY AND/OR COUNTRY:**", value="The command asks you for a prompt of your city and your country. You can put anything as the country, but it is a required prompt in order to print more accurate prayer times. *PLEASE BE WARY THAT THE API USED TO GEO LOCATE THE COORDINATES TO YOUR CITY PULL THE FIRST CITY THAT IS LISTED IN THE API RESPONSE. SOME CITIES HAVE THE SAME NAME AS EACH OTHER BUT ARE LOCATED IN DIFFERENT AREAS, WHICH CAN RESULT IN PRAYER TIMES THAT DO NOT MATCH YOUR CITY.*", inline=False)
+        embed.add_field(name="**CITY AND/OR COUNTRY:**", value="The command gives you a prompt for the location you want to gather prayer times with. It can be formatted in anyway, but if you want it to be most accurate, do it by state (New York City, NY) or by country (Moscow, RU)", inline=False)
         embed.add_field(name="**PRIVATE MESSAGE:**", value='Sheikh Bot respects your privacy. As a result of respecting your privacy, Sheikh Bot provides a parameter that shows two options, which are true and false. If you select true, it sends you a direct message with the prayer times included. Pressing false will make the bot print the prayer times on the server you called the command in.', inline=False)
         await ctx.respond(embed=embed)
     elif option == "Quran":
@@ -910,195 +912,203 @@ async def help(ctx: discord.ApplicationContext, option: str):
         embed.add_field(name="Print one verse:", value="/vquran (surah number) (verse number)", inline=False)
         embed.add_field(name="Read Quran by Ayah:", value="/quran (surah number) (verse number)", inline=False)
         embed.add_field(name="Read Quran by page:", value="/pquran (page number)", inline=False)
-        
-# prayer time command
-@bot.slash_command(name="prayertimes", description="Check your local towns prayer times")
-async def prayertimes(ctx, city, country, method: int, private_message: bool, twelve_hour_format: bool):
-    prayer_methods_list = [0, 1, 2, 3 , 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 16]
-    await ctx.defer(ephemeral = private_message)
-    if ctx.channel.type == discord.ChannelType.private:
-        try:
-            place_url=f"https://api.api-ninjas.com/v1/geocoding?city={city}&country={country}"
-            place_response = requests.get(place_url, headers={'X-Api-Key': ''})
-            place_data = place_response.json()[0]
-            place_data_latitude = place_data['latitude']
-            place_data_longitude = place_data['longitude']
-            place_name = place_data['name']
-            prayer_url = f"http://api.aladhan.com/v1/timings?latitude={place_data_latitude}&longitude={place_data_longitude}&method={method}&school=0"
-            asr_hanafi_link = f"http://api.aladhan.com/v1/timings?latitude={place_data_latitude}&longitude={place_data_longitude}&method={method}&school=1"
-            prayer_requests = requests.get(prayer_url)
-            asr_hanafi_request = requests.get(asr_hanafi_link)
-            prayer_response = prayer_requests.json()
-            asr_hanafi_response = asr_hanafi_request.json()
-            prayer_date = prayer_response['data']['date']['readable']
-            if method in prayer_methods_list:
-                embedmain=discord.Embed(title=f"Prayer times of {place_name}:",
-                                        description=f'',
-                                        color=discord.Color.orange())
-                embedmain.set_author(name=prayer_date, icon_url="https://images-ext-1.discordapp.net/external/u3RRy2sqPlkHUgO2HXkx-JEjTu0aZnFJfT4omEfrPM8/https/images-na.ssl-images-amazon.com/images/I/51q8CGXOltL.png")
-                embedmain.add_field(name="Fajr:", value=prayer_response['data']['timings']['Fajr'], inline=False)
-                embedmain.add_field(name="Sunrise:", value=prayer_response['data']['timings']['Sunrise'], inline=False)
-                embedmain.add_field(name="Dhuhr:", value=prayer_response['data']['timings']['Dhuhr'], inline=False)
-                embedmain.add_field(name="Asr:", value=prayer_response['data']['timings']['Asr'], inline=False)
-                embedmain.add_field(name="Asr (Hanafi):", value=asr_hanafi_response['data']['timings']['Asr'], inline=False)
-                embedmain.add_field(name="Sunset:", value=prayer_response['data']['timings']['Sunset'], inline=False)
-                embedmain.add_field(name="Maghrib:", value=prayer_response['data']['timings']['Maghrib'], inline=False)
-                embedmain.add_field(name="Isha:", value=prayer_response['data']['timings']['Isha'], inline=False)
-                embedmain.add_field(name="Imsak:", value=prayer_response['data']['timings']['Imsak'], inline=False)
-                embedmain.set_footer(text="PRAYER TIMES COULD BE INACCURATE BECAUSE THE BOT PULLS THE LATITUDE AND LONGITUDE OF THE FIRST CITY FOUND IN THE API RESPONSE!!! PLEASE USE `/help prayer` FOR MORE INFORMATION!", icon_url="https://cdn.discordapp.com/attachments/1174896701526511666/1255684889911492709/warning-sign-30915_1280.png?ex=667e072f&is=667cb5af&hm=1f7578a95680876530da2a1830d7079cc7eb85b796e2a69b2f7a37e5bd935683&")
-                if twelve_hour_format == True:
-                    fajr_12hr = datetime.strptime(prayer_response['data']['timings']['Fajr'], "%H:%M")
-                    sunrise_12hr = datetime.strptime(prayer_response['data']['timings']['Sunrise'], "%H:%M")
-                    dhuhr_12hr = datetime.strptime(prayer_response['data']['timings']['Dhuhr'], "%H:%M")
-                    asr_12hr = datetime.strptime(prayer_response['data']['timings']['Asr'], "%H:%M")
-                    asr_hanafi_12hr = datetime.strptime(asr_hanafi_response['data']['timings']['Asr'], "%H:%M")
-                    sunset_12hr = datetime.strptime(prayer_response['data']['timings']['Sunset'], "%H:%M")
-                    maghrib_12hr = datetime.strptime(prayer_response['data']['timings']['Maghrib'], "%H:%M")
-                    isha_12hr = datetime.strptime(prayer_response['data']['timings']['Isha'], "%H:%M")
-                    imsak_12hr = datetime.strptime(prayer_response['data']['timings']['Imsak'], "%H:%M")
-                    embed12=discord.Embed(title=f"Prayer times of {place_name}:",
-                                          description=f'',
-                                          color=discord.Color.orange())
-                    embed12.set_author(name=prayer_date, icon_url="https://images-ext-1.discordapp.net/external/u3RRy2sqPlkHUgO2HXkx-JEjTu0aZnFJfT4omEfrPM8/https/images-na.ssl-images-amazon.com/images/I/51q8CGXOltL.png")
-                    embed12.add_field(name="Fajr:", value=fajr_12hr.strftime("%I:%M %p"), inline=False)
-                    embed12.add_field(name="Sunrise:", value=sunrise_12hr.strftime("%I:%M %p"), inline=False)
-                    embed12.add_field(name="Dhuhr:", value=dhuhr_12hr.strftime("%I:%M %p"), inline=False)
-                    embed12.add_field(name="Asr:", value=asr_12hr.strftime("%I:%M %p"), inline=False)
-                    embed12.add_field(name="Asr (Hanafi):", value=asr_hanafi_12hr.strftime("%I:%M %p"), inline=False)
-                    embed12.add_field(name="Sunset:", value=sunset_12hr.strftime("%I:%M %p"), inline=False)
-                    embed12.add_field(name="Maghrib:", value=maghrib_12hr.strftime("%I:%M %p"), inline=False)
-                    embed12.add_field(name="Isha:", value=isha_12hr.strftime("%I:%M %p"), inline=False)
-                    embed12.add_field(name="Imsak:", value=imsak_12hr.strftime("%I:%M %p"), inline=False)
-                    embed12.set_footer(text="PRAYER TIMES COULD BE INACCURATE BECAUSE THE BOT PULLS THE LATITUDE AND LONGITUDE OF THE FIRST CITY FOUND IN THE API RESPONSE!!! PLEASE USE `/help prayer` FOR MORE INFORMATION!", icon_url="https://cdn.discordapp.com/attachments/1174896701526511666/1255684889911492709/warning-sign-30915_1280.png?ex=667e072f&is=667cb5af&hm=1f7578a95680876530da2a1830d7079cc7eb85b796e2a69b2f7a37e5bd935683&")
-                    if private_message == True:
-                        await ctx.respond(embed=embed12)
-                        print(f"Successfully sent prayer times to {ctx.author}")
-                    else:
-                        await ctx.respond(embed=embed12)
-                        print(f"Successfully sent prayer times to {ctx.author}")
-                else:
-                    if private_message == True:
-                        await ctx.respond(embed=embedmain)
-                        print(f"Successfully sent prayer times to {ctx.author}")
-                    else:
-                        await ctx.respond(embed=embedmain)
-                        print(f"Successfully sent prayer times to {ctx.author}")
-            else:
-                embed=discord.Embed(title="",
-                                    description="This is not a valid prayer time method! please run `/help prayer` to get a list of the prayer time methods!",
-                                    color=discord.Color.red())
-                await ctx.respond(embed=embed, ephemeral=True)
-        except IndexError:
-            embed=discord.Embed(title="",
-                                description="That is not a valid city and/or country!",
-                                color=discord.Color.red())
-            await ctx.respond(embed=embed, ephemeral=True)
-    else:
-        try:
-            place_url=f"https://api.api-ninjas.com/v1/geocoding?city={city}&country={country}"
-            place_response = requests.get(place_url, headers={'X-Api-Key': ''})
-            place_data = place_response.json()[0]
-            place_data_latitude = place_data['latitude']
-            place_data_longitude = place_data['longitude']
-            place_name = place_data['name']
-            prayer_url = f"http://api.aladhan.com/v1/timings?latitude={place_data_latitude}&longitude={place_data_longitude}&method={method}"
-            asr_hanafi_link = f"http://api.aladhan.com/v1/timings?latitude={place_data_latitude}&longitude={place_data_longitude}&method={method}&school=1"
-            prayer_requests = requests.get(prayer_url)
-            asr_hanafi_request = requests.get(asr_hanafi_link)
-            prayer_response = prayer_requests.json()
-            asr_hanafi_response = asr_hanafi_request.json()
-            prayer_date = prayer_response['data']['date']['readable']
-            if method in prayer_methods_list:
-                embedmain=discord.Embed(title=f"Prayer times of {place_name}:",
-                                        description=f'',
-                                        color=discord.Color.orange())
-                embedmain.set_author(name=prayer_date, icon_url="https://images-ext-1.discordapp.net/external/u3RRy2sqPlkHUgO2HXkx-JEjTu0aZnFJfT4omEfrPM8/https/images-na.ssl-images-amazon.com/images/I/51q8CGXOltL.png")
-                embedmain.add_field(name="Fajr:", value=prayer_response['data']['timings']['Fajr'], inline=False)
-                embedmain.add_field(name="Sunrise:", value=prayer_response['data']['timings']['Sunrise'], inline=False)
-                embedmain.add_field(name="Dhuhr:", value=prayer_response['data']['timings']['Dhuhr'], inline=False)
-                embedmain.add_field(name="Asr:", value=prayer_response['data']['timings']['Asr'], inline=False)
-                embedmain.add_field(name="Asr (Hanafi):", value=asr_hanafi_response['data']['timings']['Asr'], inline=False)
-                embedmain.add_field(name="Sunset:", value=prayer_response['data']['timings']['Sunset'], inline=False)
-                embedmain.add_field(name="Maghrib:", value=prayer_response['data']['timings']['Maghrib'], inline=False)
-                embedmain.add_field(name="Isha:", value=prayer_response['data']['timings']['Isha'], inline=False)
-                embedmain.add_field(name="Imsak:", value=prayer_response['data']['timings']['Imsak'], inline=False)
-                embedmain.set_footer(text="PRAYER TIMES COULD BE INACCURATE BECAUSE THE BOT PULLS THE LATITUDE AND LONGITUDE OF THE FIRST CITY FOUND IN THE API RESPONSE!!! PLEASE USE `/help prayer` FOR MORE INFORMATION!", icon_url="https://cdn.discordapp.com/attachments/1174896701526511666/1255684889911492709/warning-sign-30915_1280.png?ex=667e072f&is=667cb5af&hm=1f7578a95680876530da2a1830d7079cc7eb85b796e2a69b2f7a37e5bd935683&")
-                if twelve_hour_format == True:
-                    fajr_12hr = datetime.strptime(prayer_response['data']['timings']['Fajr'], "%H:%M")
-                    sunrise_12hr = datetime.strptime(prayer_response['data']['timings']['Sunrise'], "%H:%M")
-                    dhuhr_12hr = datetime.strptime(prayer_response['data']['timings']['Dhuhr'], "%H:%M")
-                    asr_12hr = datetime.strptime(prayer_response['data']['timings']['Asr'], "%H:%M")
-                    asr_hanafi_12hr = datetime.strptime(asr_hanafi_response['data']['timings']['Asr'], "%H:%M")
-                    sunset_12hr = datetime.strptime(prayer_response['data']['timings']['Sunset'], "%H:%M")
-                    maghrib_12hr = datetime.strptime(prayer_response['data']['timings']['Maghrib'], "%H:%M")
-                    isha_12hr = datetime.strptime(prayer_response['data']['timings']['Isha'], "%H:%M")
-                    imsak_12hr = datetime.strptime(prayer_response['data']['timings']['Imsak'], "%H:%M")
-                    embed12=discord.Embed(title=f"Prayer times of {place_name}:",
-                                          description=f'',
-                                          color=discord.Color.orange())
-                    embed12.set_author(name=prayer_date, icon_url="https://images-ext-1.discordapp.net/external/u3RRy2sqPlkHUgO2HXkx-JEjTu0aZnFJfT4omEfrPM8/https/images-na.ssl-images-amazon.com/images/I/51q8CGXOltL.png")
-                    embed12.add_field(name="Fajr:", value=fajr_12hr.strftime("%I:%M %p"), inline=False)
-                    embed12.add_field(name="Sunrise:", value=sunrise_12hr.strftime("%I:%M %p"), inline=False)
-                    embed12.add_field(name="Dhuhr:", value=dhuhr_12hr.strftime("%I:%M %p"), inline=False)
-                    embed12.add_field(name="Asr:", value=asr_12hr.strftime("%I:%M %p"), inline=False)
-                    embed12.add_field(name="Asr (Hanafi):", value=asr_hanafi_12hr.strftime("%I:%M %p"), inline=False)
-                    embed12.add_field(name="Sunset:", value=sunset_12hr.strftime("%I:%M %p"), inline=False)
-                    embed12.add_field(name="Maghrib:", value=maghrib_12hr.strftime("%I:%M %p"), inline=False)
-                    embed12.add_field(name="Isha:", value=isha_12hr.strftime("%I:%M %p"), inline=False)
-                    embed12.add_field(name="Imsak:", value=imsak_12hr.strftime("%I:%M %p"), inline=False)
-                    embed12.set_footer(text="PRAYER TIMES COULD BE INACCURATE BECAUSE THE BOT PULLS THE LATITUDE AND LONGITUDE OF THE FIRST CITY FOUND IN THE API RESPONSE!!! PLEASE USE `/help prayer` FOR MORE INFORMATION!", icon_url="https://cdn.discordapp.com/attachments/1174896701526511666/1255684889911492709/warning-sign-30915_1280.png?ex=667e072f&is=667cb5af&hm=1f7578a95680876530da2a1830d7079cc7eb85b796e2a69b2f7a37e5bd935683&")
-                    if private_message == True:
-                        try:
-                            await ctx.author.send(embed=embed12)
-                            embed=discord.Embed(title="",
-                                                description="Successfully retrieved prayer times and sent them to direct messages!",
-                                                color=discord.Color.green())
-                            await ctx.respond(embed=embed)
-                            print(f"Successfully sent prayer times to {ctx.author}")
-                        except discord.errors.Forbidden:
-                            embed=discord.Embed(title="",
-                                                description="I cannot send you the prayer times because you have `Direct Messages` for this server off!",
-                                                color=discord.Color.red())
-                            await ctx.respond(embed=embed)
-                    else:
-                        await ctx.respond(embed=embed12)
-                        print(f"Successfully sent prayer times to {ctx.author}")
-                else:
-                    if private_message == True:
-                        try:
-                            await ctx.author.send(embed=embedmain)
-                            embed2=discord.Embed(title="",
-                                                 description="Successfully retrieved prayer times and sent them to direct messages!",
-                                                 color=discord.Color.dark_green())
-                            await ctx.respond(embed=embed2)
-                            print(f"Successfully sent prayer times to {ctx.author}")
-                        except discord.errors.Forbidden:
-                            embed=discord.Embed(title="",
-                                                description="I cannot send you the prayer times because you have `Direct Messages` for this server off!",
-                                                color=discord.Color.red())
-                            await ctx.respond(embed=embed)
-                    else:
-                        await ctx.respond(embed=embedmain)
-                        print(f"Successfully sent prayer times to {ctx.author}")
-            else:
-                embed=discord.Embed(title="",
-                                    description="This is not a valid prayer time method! please run `/help prayer` to get a list of the prayer time methods!",
-                                    color=discord.Color.red())
-                await ctx.respond(embed=embed, ephemeral=True)
-        except IndexError:
-            embed=discord.Embed(title="",
-                                description="That is not a valid city and/or country!",
-                                color=discord.Color.red())
-            await ctx.respond(embed=embed, ephemeral=True)
 
-# prayer time methods list
-@bot.slash_command(name="methodslist", description="Shows a list of prayer time methods")
-async def methodslist(ctx):
-    embed=discord.Embed(title="",
-                        description="0 - Shia Ithna-Ashari\n1 - University of Islamic Sciences, Karachi\n2 - Islamic Society of North America\n3 - Muslim World League\n4 - Umm Al-Qura University, Makkah\n5 - Egyptian General Authority of Survey\n7 - Institute of Geophysics, University of Tehran\n8 - Gulf Region\n9 - Kuwait\n10 - Qatar\n11 - Majlis Ugama Islam Singapura, Singapore\n12 - Union Organization islamic de France\n13 - Diyanet İşleri Başkanlığı, Turkey\n14 - Spiritual Administration of Muslims of Russia\n16 - Dubai (unofficial)",
-                        color=discord.Color.blurple())
-    embed.set_author(name="Prayer Time Methods", icon_url="https://images-ext-1.discordapp.net/external/u3RRy2sqPlkHUgO2HXkx-JEjTu0aZnFJfT4omEfrPM8/https/images-na.ssl-images-amazon.com/images/I/51q8CGXOltL.png")
-    await ctx.respond(embed=embed)
+# prayer time command
+PrayerTimeMethod = namedtuple('PrayerTimeMethod', ["id"])
+prayer_methods = {
+    "Shia Ithna-Ashari": PrayerTimeMethod(id=0),
+    "University of Islamic Sciences, Karachi": PrayerTimeMethod(id=1),
+    "Islamic Society of North America": PrayerTimeMethod(id=2),
+    "Muslim World League": PrayerTimeMethod(id=3),
+    "Umm Al-Qura University, Makkah": PrayerTimeMethod(id=4),
+    "Egyptian General Authority of Survey": PrayerTimeMethod(id=5),
+    "Institue of Geophysics, University of Tehran": PrayerTimeMethod(id=7),
+    "Gulf Region": PrayerTimeMethod(id=8),
+    "Kuwait": PrayerTimeMethod(id=9),
+    "Qatar": PrayerTimeMethod(id=10),
+    "Majlis Ugama Islam Singapura, Singapore": PrayerTimeMethod(id=11),
+    "Union Organization islamic de France": PrayerTimeMethod(id=12),
+    "Diyanet İşleri Başkanlığı, Turkey": PrayerTimeMethod(id=13),
+    "Spiritual Administration of Muslims of Russia": PrayerTimeMethod(id=14),
+    "Dubai (unofficial)": PrayerTimeMethod(id=16)
+}
+prayer_methods_list = [
+    "Shia Ithna-Ashari",
+    "University of Islamic Sciences, Karachi",
+    "Islamic Society of North America",
+    "Muslim World League",
+    "Umm Al-Qura University, Makkah",
+    "Egyptian General Authority of Survey",
+    "Institue of Geophysics, University of Tehran",
+    "Gulf Region",
+    "Kuwait",
+    "Qatar",
+    "Majlis Ugama Islam Singapura, Singapore",
+    "Union Organization islamic de France",
+    "Diyanet İşleri Başkanlığı, Turkey",
+    "Spiritual Administration of Muslims of Russia",
+    "Dubai (unofficial)"
+]
+@bot.slash_command(name="prayertimes", description="Check your local towns prayer times")
+@discord.option("method", description="The calculation method used for your prayer times", choices=prayer_methods_list)
+async def prayertimes(ctx, location: str, method: str, private_message: bool, twelve_hour_format: bool):
+    await ctx.defer(ephemeral = private_message)
+    method_get = prayer_methods[method]
+    m = method_get.id
+    if ctx.channel.type == discord.ChannelType.private:
+        prayer_url = f"http://api.aladhan.com/v1/timingsByAddress?address={location}&method={m}&school=0"
+        asr_hanafi_link = f"http://api.aladhan.com/v1/timingsByAddress?address={location}&method={m}&school=1"
+        try:
+            prayer_requests = requests.get(prayer_url)
+            prayer_response = prayer_requests.json()
+            prayer_date = prayer_response['data']['date']['readable']
+        except TypeError:
+            embed=discord.Embed(title="",
+                                description="This is not a valid location! (A valid location for example: New York City, New York)",
+                                color=discord.Color.red())
+            await ctx.respond(embed=embed)
+        else:
+            asr_hanafi_request = requests.get(asr_hanafi_link)
+            prayer_response = prayer_requests.json()
+            asr_hanafi_response = asr_hanafi_request.json()
+            prayer_date = prayer_response['data']['date']['readable']
+            embedmain=discord.Embed(title=f"Prayer times of {location}:",
+                                    description=f'',
+                                    color=discord.Color.orange())
+            embedmain.set_author(name=prayer_date, icon_url="https://images-ext-1.discordapp.net/external/u3RRy2sqPlkHUgO2HXkx-JEjTu0aZnFJfT4omEfrPM8/https/images-na.ssl-images-amazon.com/images/I/51q8CGXOltL.png")
+            embedmain.add_field(name="Fajr:", value=prayer_response['data']['timings']['Fajr'], inline=False)
+            embedmain.add_field(name="Sunrise:", value=prayer_response['data']['timings']['Sunrise'], inline=False)
+            embedmain.add_field(name="Dhuhr:", value=prayer_response['data']['timings']['Dhuhr'], inline=False)
+            embedmain.add_field(name="Asr:", value=prayer_response['data']['timings']['Asr'], inline=False)
+            embedmain.add_field(name="Asr (Hanafi):", value=asr_hanafi_response['data']['timings']['Asr'], inline=False)
+            embedmain.add_field(name="Sunset:", value=prayer_response['data']['timings']['Sunset'], inline=False)
+            embedmain.add_field(name="Maghrib:", value=prayer_response['data']['timings']['Maghrib'], inline=False)
+            embedmain.add_field(name="Isha:", value=prayer_response['data']['timings']['Isha'], inline=False)
+            embedmain.add_field(name="Imsak:", value=prayer_response['data']['timings']['Imsak'], inline=False)
+            embedmain.set_footer(text="If you aren't sure if your prayer times are correct, you can do it by state (New York City, NY), or by country (Moscow, RU)", icon_url="https://cdn.discordapp.com/attachments/1174896701526511666/1255684889911492709/warning-sign-30915_1280.png?ex=667e072f&is=667cb5af&hm=1f7578a95680876530da2a1830d7079cc7eb85b796e2a69b2f7a37e5bd935683&")
+            if twelve_hour_format == True:
+                fajr_12hr = datetime.strptime(prayer_response['data']['timings']['Fajr'], "%H:%M")
+                sunrise_12hr = datetime.strptime(prayer_response['data']['timings']['Sunrise'], "%H:%M")
+                dhuhr_12hr = datetime.strptime(prayer_response['data']['timings']['Dhuhr'], "%H:%M")
+                asr_12hr = datetime.strptime(prayer_response['data']['timings']['Asr'], "%H:%M")
+                asr_hanafi_12hr = datetime.strptime(asr_hanafi_response['data']['timings']['Asr'], "%H:%M")
+                sunset_12hr = datetime.strptime(prayer_response['data']['timings']['Sunset'], "%H:%M")
+                maghrib_12hr = datetime.strptime(prayer_response['data']['timings']['Maghrib'], "%H:%M")
+                isha_12hr = datetime.strptime(prayer_response['data']['timings']['Isha'], "%H:%M")
+                imsak_12hr = datetime.strptime(prayer_response['data']['timings']['Imsak'], "%H:%M")
+                embed12=discord.Embed(title=f"Prayer times of {location}:",
+                                      description=f'',
+                                      color=discord.Color.orange())
+                embed12.set_author(name=prayer_date, icon_url="https://images-ext-1.discordapp.net/external/u3RRy2sqPlkHUgO2HXkx-JEjTu0aZnFJfT4omEfrPM8/https/images-na.ssl-images-amazon.com/images/I/51q8CGXOltL.png")
+                embed12.add_field(name="Fajr:", value=fajr_12hr.strftime("%I:%M %p"), inline=False)
+                embed12.add_field(name="Sunrise:", value=sunrise_12hr.strftime("%I:%M %p"), inline=False)
+                embed12.add_field(name="Dhuhr:", value=dhuhr_12hr.strftime("%I:%M %p"), inline=False)
+                embed12.add_field(name="Asr:", value=asr_12hr.strftime("%I:%M %p"), inline=False)
+                embed12.add_field(name="Asr (Hanafi):", value=asr_hanafi_12hr.strftime("%I:%M %p"), inline=False)
+                embed12.add_field(name="Sunset:", value=sunset_12hr.strftime("%I:%M %p"), inline=False)
+                embed12.add_field(name="Maghrib:", value=maghrib_12hr.strftime("%I:%M %p"), inline=False)
+                embed12.add_field(name="Isha:", value=isha_12hr.strftime("%I:%M %p"), inline=False)
+                embed12.add_field(name="Imsak:", value=imsak_12hr.strftime("%I:%M %p"), inline=False)
+                embed12.set_footer(text="If you aren't sure if your prayer times are correct, you can do it by state (New York City, NY), or by country (Moscow, RU)", icon_url="https://cdn.discordapp.com/attachments/1174896701526511666/1255684889911492709/warning-sign-30915_1280.png?ex=667e072f&is=667cb5af&hm=1f7578a95680876530da2a1830d7079cc7eb85b796e2a69b2f7a37e5bd935683&")
+                if private_message == True:
+                    await ctx.respond(embed=embed12)
+                    print(f"Successfully sent prayer times to {ctx.author}")
+                else:
+                    await ctx.respond(embed=embed12)
+                    print(f"Successfully sent prayer times to {ctx.author}")
+            else:
+                if private_message == True:
+                    await ctx.respond(embed=embedmain)
+                    print(f"Successfully sent prayer times to {ctx.author}")
+                else:
+                    await ctx.respond(embed=embedmain)
+                    print(f"Successfully sent prayer times to {ctx.author}")
+    else:
+        prayer_url = f"http://api.aladhan.com/v1/timingsByAddress?address={location}&method={m}&school=0"
+        asr_hanafi_link = f"http://api.aladhan.com/v1/timingsByAddress?address={location}&method={m}&school=1"
+        try:
+            prayer_requests = requests.get(prayer_url)
+            prayer_response = prayer_requests.json()
+            prayer_date = prayer_response['data']['date']['readable']
+        except TypeError:
+            embed=discord.Embed(title="",
+                                description="This is not a valid location! (A valid location for example: New York City, New York)",
+                                color=discord.Color.red())
+            await ctx.respond(embed=embed)
+        else:    
+            asr_hanafi_request = requests.get(asr_hanafi_link)
+            asr_hanafi_response = asr_hanafi_request.json()
+            embedmain=discord.Embed(title=f"Prayer times of {location}:",
+                                    description=f'',
+                                    color=discord.Color.orange())
+            embedmain.set_author(name=prayer_date, icon_url="https://images-ext-1.discordapp.net/external/u3RRy2sqPlkHUgO2HXkx-JEjTu0aZnFJfT4omEfrPM8/https/images-na.ssl-images-amazon.com/images/I/51q8CGXOltL.png")
+            embedmain.add_field(name="Fajr:", value=prayer_response['data']['timings']['Fajr'], inline=False)
+            embedmain.add_field(name="Sunrise:", value=prayer_response['data']['timings']['Sunrise'], inline=False)
+            embedmain.add_field(name="Dhuhr:", value=prayer_response['data']['timings']['Dhuhr'], inline=False)
+            embedmain.add_field(name="Asr:", value=prayer_response['data']['timings']['Asr'], inline=False)
+            embedmain.add_field(name="Asr (Hanafi):", value=asr_hanafi_response['data']['timings']['Asr'], inline=False)
+            embedmain.add_field(name="Sunset:", value=prayer_response['data']['timings']['Sunset'], inline=False)
+            embedmain.add_field(name="Maghrib:", value=prayer_response['data']['timings']['Maghrib'], inline=False)
+            embedmain.add_field(name="Isha:", value=prayer_response['data']['timings']['Isha'], inline=False)
+            embedmain.add_field(name="Imsak:", value=prayer_response['data']['timings']['Imsak'], inline=False)
+            embedmain.set_footer(text="If you aren't sure if your prayer times are correct, you can do it by state (New York City, NY), or by country (Moscow, RU)", icon_url="https://cdn.discordapp.com/attachments/1174896701526511666/1255684889911492709/warning-sign-30915_1280.png?ex=667e072f&is=667cb5af&hm=1f7578a95680876530da2a1830d7079cc7eb85b796e2a69b2f7a37e5bd935683&")
+            if twelve_hour_format == True:
+                fajr_12hr = datetime.strptime(prayer_response['data']['timings']['Fajr'], "%H:%M")
+                sunrise_12hr = datetime.strptime(prayer_response['data']['timings']['Sunrise'], "%H:%M")
+                dhuhr_12hr = datetime.strptime(prayer_response['data']['timings']['Dhuhr'], "%H:%M")
+                asr_12hr = datetime.strptime(prayer_response['data']['timings']['Asr'], "%H:%M")
+                asr_hanafi_12hr = datetime.strptime(asr_hanafi_response['data']['timings']['Asr'], "%H:%M")
+                sunset_12hr = datetime.strptime(prayer_response['data']['timings']['Sunset'], "%H:%M")
+                maghrib_12hr = datetime.strptime(prayer_response['data']['timings']['Maghrib'], "%H:%M")
+                isha_12hr = datetime.strptime(prayer_response['data']['timings']['Isha'], "%H:%M")
+                imsak_12hr = datetime.strptime(prayer_response['data']['timings']['Imsak'], "%H:%M")
+                embed12=discord.Embed(title=f"Prayer times of {location}:",
+                                      description=f'',
+                                      color=discord.Color.orange())
+                embed12.set_author(name=prayer_date, icon_url="https://images-ext-1.discordapp.net/external/u3RRy2sqPlkHUgO2HXkx-JEjTu0aZnFJfT4omEfrPM8/https/images-na.ssl-images-amazon.com/images/I/51q8CGXOltL.png")
+                embed12.add_field(name="Fajr:", value=fajr_12hr.strftime("%I:%M %p"), inline=False)
+                embed12.add_field(name="Sunrise:", value=sunrise_12hr.strftime("%I:%M %p"), inline=False)
+                embed12.add_field(name="Dhuhr:", value=dhuhr_12hr.strftime("%I:%M %p"), inline=False)
+                embed12.add_field(name="Asr:", value=asr_12hr.strftime("%I:%M %p"), inline=False)
+                embed12.add_field(name="Asr (Hanafi):", value=asr_hanafi_12hr.strftime("%I:%M %p"), inline=False)
+                embed12.add_field(name="Sunset:", value=sunset_12hr.strftime("%I:%M %p"), inline=False)
+                embed12.add_field(name="Maghrib:", value=maghrib_12hr.strftime("%I:%M %p"), inline=False)
+                embed12.add_field(name="Isha:", value=isha_12hr.strftime("%I:%M %p"), inline=False)
+                embed12.add_field(name="Imsak:", value=imsak_12hr.strftime("%I:%M %p"), inline=False)
+                embed12.set_footer(text="If you aren't sure if your prayer times are correct, you can do it by state (New York City, NY), or by country (Moscow, RU)", icon_url="https://cdn.discordapp.com/attachments/1174896701526511666/1255684889911492709/warning-sign-30915_1280.png?ex=667e072f&is=667cb5af&hm=1f7578a95680876530da2a1830d7079cc7eb85b796e2a69b2f7a37e5bd935683&")
+                if private_message == True:
+                    try:
+                        await ctx.author.send(embed=embed12)
+                        embed=discord.Embed(title="",
+                                            description="Successfully retrieved prayer times and sent them to direct messages!",
+                                            color=discord.Color.green())
+                        await ctx.respond(embed=embed)
+                        print(f"Successfully sent prayer times to {ctx.author}")
+                    except discord.errors.Forbidden:
+                        embed=discord.Embed(title="",
+                                            description="I cannot send you the prayer times because you have `Direct Messages` for this server off!",
+                                            color=discord.Color.red())
+                        await ctx.respond(embed=embed)
+                else:
+                    await ctx.respond(embed=embed12)
+                    print(f"Successfully sent prayer times to {ctx.author}")
+            else:
+                if private_message == True:
+                    try:
+                        await ctx.author.send(embed=embedmain)
+                        embed2=discord.Embed(title="",
+                                             description="Successfully retrieved prayer times and sent them to direct messages!",
+                                             color=discord.Color.dark_green())
+                        await ctx.respond(embed=embed2)
+                        print(f"Successfully sent prayer times to {ctx.author}")
+                    except discord.errors.Forbidden:
+                        embed=discord.Embed(title="",
+                                            description="I cannot send you the prayer times because you have `Direct Messages` for this server off!",
+                                            color=discord.Color.red())
+                        await ctx.respond(embed=embed)
+                else:
+                    await ctx.respond(embed=embedmain)
+                    print(f"Successfully sent prayer times to {ctx.author}")
 
 # letting the bot run
 bot.run("")
